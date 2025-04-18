@@ -1,0 +1,23 @@
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%; /* nhỏ lại một chút nếu mặc định quá to */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.carousel-control-prev {
+    left: 0.5rem; /* đảm bảo không sát quá hoặc ra ngoài */
+}
+
+.carousel-control-next {
+    right: 0.5rem;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-size: 100% 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* thêm nền nếu đè lên card nhìn rõ hơn */
+    border-radius: 50%;
+    padding: 0.5rem;
+}
