@@ -11,7 +11,10 @@ const ShopPage = () => {
     const [limit, setLimit] = useState(5);
     const [categoriesName, setCategoriesName] = useState([])
     const [authorsName, setAuthorsName] = useState([])
-    const [nameFilter, setNameFilter] = useState("")
+    const [nameFilter, setNameFilter] = useState([])
+    const [categoryFilter, setCategoryFilter] = useState("")
+    const [authorFilter, setAuthorFilter] = useState("")
+    const [starFilter, setStarFilter] = useState("")
     const [selectIdCategory, setSelectIdCategory] = useState(null)
     const [selectIdAuthor, setSelectIdAuthor] = useState(null)
     const [sortOption, setSortOption] = useState("0")
@@ -20,8 +23,8 @@ const ShopPage = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                let url = `http://127.0.0.1:8003/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
-                let url_count = `http://127.0.0.1:8003/books/count?`
+                let url = `http://127.0.0.1:8002/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
+                let url_count = `http://127.0.0.1:8002/books/count?`
 
                 if (selectIdCategory !== null) {
                     url += `&category_id=${selectIdCategory}`;
@@ -33,29 +36,32 @@ const ShopPage = () => {
                     url_count += `&author_id=${selectIdAuthor}`;
                 }
 
+                if (selectedStar !== null) {
+                    url += `&min_rating=${selectedStar}`;
+                    url_count += `&min_rating=${selectedStar}`;
+                }
+
                 let data = await fetch(url);
                 let data_count = await fetch(url_count);
                 let res = await data.json();
                 let res1 = await data_count.json();
                 setBooks(res);
-                console.log("Res: ", res);
-
                 setTotalBooks(res1.count)
+                setNameFilter(categoryFilter + authorFilter + starFilter)
             }
             catch (e) {
                 console.error('Error fetching books:', e);
             }
         }
         fetchBooks()
-    }, [page, limit, selectIdCategory, selectIdAuthor, sortOption])
+    }, [page, limit, selectIdCategory, selectIdAuthor, selectedStar, sortOption])
 
     useEffect(() => {
         const fetchAllCategoriesName = async () => {
             try {
-                let allCategoriesName = await fetch(`http://127.0.0.1:8003/categories`);
+                let allCategoriesName = await fetch(`http://127.0.0.1:8002/categories`);
                 let res = await allCategoriesName.json()
                 setCategoriesName(res)
-
             } catch (e) {
                 console.log("Failed to fetch categories name", e);
             }
@@ -63,7 +69,7 @@ const ShopPage = () => {
 
         const fetchAllAuthorsName = async () => {
             try {
-                let allAuthorsName = await fetch(`http://127.0.0.1:8003/authors`);
+                let allAuthorsName = await fetch(`http://127.0.0.1:8002/authors`);
                 let res = await allAuthorsName.json()
                 setAuthorsName(res)
             } catch (e) {
@@ -84,20 +90,22 @@ const ShopPage = () => {
 
     const handleSelectedAuthor = (id, author_name, author_id) => {
         setSelectedAuthor(id)
-        setNameFilter(author_name)
+        setAuthorFilter(author_name)
         setPage(1)
         setSelectIdAuthor(author_id)
     }
 
     const handleSelectedCategory = (id, category_name, category_id) => {
         setSelectedCategory(id)
-        setNameFilter(category_name)
+        setCategoryFilter(category_name)
         setPage(1)
         setSelectIdCategory(category_id)
     }
 
     const handleSelectedStar = (id) => {
         setSelectedStar(id)
+        setPage(1)
+        setStarFilter(id + " stars")
     }
 
     const handleSortChange = (e) => {
@@ -107,14 +115,14 @@ const ShopPage = () => {
     }
 
     return (
-        <Container className="mt-5">
-            <h5 className="fw-bold mb-0">Books <span className='fw-light fs-6'> (Filter by {nameFilter})</span></h5>
+        <Container className="mt-4">
+            <h5 className="fw-bold">Books <span className='fw-light fs-6'> (Filtered by {nameFilter})</span></h5>
             <hr />
 
-            <p className='fw-bold'>Filter By</p>
             <Row>
                 {/* Sidebar */}
                 <Col md={3}>
+                    <p className='fw-bold mt-4'>Filter By</p>
                     <Accordion defaultActiveKey="0" className="mb-3">
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>
@@ -163,7 +171,7 @@ const ShopPage = () => {
                                 <span className="fw-bold">Rating Review</span>
                             </Accordion.Header>
                             <Accordion.Body>
-                                {[5, 4, 3, 2, 1].map((rating) => (
+                                {[1, 2, 3, 4, 5].map((rating) => (
                                     <div key={rating} className={`d-flex align-items-center mb-1 mb-2 text-muted ${selectedStar === rating ? 'fw-bold' : ''}`}
                                         onClick={() => handleSelectedStar(rating)}
                                         style={{ cursor: 'pointer' }}
@@ -184,18 +192,17 @@ const ShopPage = () => {
                 </Col>
 
                 {/* Main content */}
-                <Col md={9}>
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="fw-bold mb-0">Books (0)</h5>
-                        <div className="d-flex gap-2">
-                            <Form.Select size="sm" onChange={handleSortChange}>
+                <Col md={9} className='mt-4'>
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <p className="">Showing {1 + (page - 1) * limit}-{Math.min(page * limit, totalBooks)} of {totalBooks} books</p>
+                        <div className="d-flex gap-4">
+                            <Form.Select size="sm" onChange={handleSortChange} className="w-auto">
                                 <option value="0">Sort by on sale</option>
                                 <option value="popularity">Sort by popularity</option>
                                 <option value="price_asc">Sort by price: low to high</option>
                                 <option value="price_desc">Sort by price: high to low</option>
-
                             </Form.Select>
-                            <Form.Select size="sm" onChange={handleLimitChange}>
+                            <Form.Select size="sm" onChange={handleLimitChange} className="w-auto">
                                 <option value="5">Show 5</option>
                                 <option value="15">Show 15</option>
                                 <option value="20">Show 20</option>

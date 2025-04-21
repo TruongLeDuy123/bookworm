@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Button, Card, Form, Dropdown, Pagination } from 'react-bootstrap';
+import Swal from 'sweetalert2';
 
 const BookDetailPage = () => {
     const { id } = useParams();
@@ -19,18 +20,22 @@ const BookDetailPage = () => {
     useEffect(() => {
         const fetchInfoBook = async () => {
             try {
-                let dataBook = await fetch(`http://127.0.0.1:8003/book/${id}`);
+                let dataBook = await fetch(`http://127.0.0.1:8002/book/${id}`);
                 let res = await dataBook.json();
                 setBookData(res);
+                console.log("check book data: ", res);
+
             } catch (e) {
                 console.log("Failed to fetch book info", e);
             }
         };
         const fetchDetailBook = async () => {
             try {
-                let book = await fetch(`http://127.0.0.1:8003/book-has-discount/${id}`);
+                let book = await fetch(`http://127.0.0.1:8002/book-has-discount/${id}`);
                 let res = await book.json();
                 setBook(res);
+                console.log("check detail: ", res);
+
             } catch (e) {
                 console.log("Failed to fetch book", e);
             }
@@ -42,6 +47,23 @@ const BookDetailPage = () => {
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
+
+    const handleAddNumber = () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Thêm sản phẩm vào giỏ hàng thành công!',
+            showConfirmButton: true,
+            timer: 1500,
+            confirmButtonText: 'OK'
+        });
+        if (!localStorage.getItem("quantity")) localStorage.setItem("quantity", quantity)
+        else 
+        {
+            let currentQuantity = +localStorage.getItem("quantity") + quantity
+            localStorage.setItem("quantity", currentQuantity)
+        }
+        window.dispatchEvent(new Event("cartUpdated"))
+    }
 
     if (!bookData || !book) {
         return <div>Loading...</div>;
@@ -92,7 +114,7 @@ const BookDetailPage = () => {
                                     (
                                         <>
                                             <span className="text-muted text-decoration-line-through me-2">${Number(bookData.book_price).toFixed(2)}</span>
-                                            <strong>${Number(bookData.book_price - book.discount_price).toFixed(2)}</strong>
+                                            <strong>${Number(bookData.book_price - book.total_discount).toFixed(2)}</strong>
                                         </>
                                     ) :
                                     (
@@ -113,7 +135,7 @@ const BookDetailPage = () => {
                         </div>
 
                         <div className="px-5 w-100">
-                            <Button variant="secondary" className="w-100 mt-2">
+                            <Button variant="secondary" className="w-100 mt-2" onClick={handleAddNumber}>
                                 Add to cart
                             </Button>
                         </div>

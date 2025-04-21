@@ -45,7 +45,7 @@ const ShoppingCart = () => {
     useEffect(() => {
         const fetchOrderItems = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:8003/cart/${id}`);
+                const res = await fetch(`http://127.0.0.1:8002/cart/${id}`);
                 const data = await res.json();
                 setOrderItems(data);
             } catch (err) {

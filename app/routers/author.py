@@ -13,5 +13,5 @@ router = APIRouter()
 
 @router.get("/authors", response_model=List[AuthorBase])
 def get_all_authors(db: Session = Depends(get_db)):
-    authors = db.query(Author).all()
+    authors = db.query(Author).order_by(Author.author_name).all()
     return authors

@@ -17,10 +17,10 @@ const OnSale = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                const res = await fetch("http://127.0.0.1:8003/books/top-discount");
+                const res = await fetch("http://127.0.0.1:8002/books/top-discount");
                 const data = await res.json();
                 setBooks(data);
-                console.log(data);
+                console.log("check books: ", data);
 
             } catch (err) {
                 console.error("Failed to fetch books", err);
@@ -53,12 +53,12 @@ const OnSale = () => {
                 <Carousel indicators={false}>
                     {chunkedBooks.map((group, idx) => (
                         <Carousel.Item key={idx}>
-                            <Row className="gx-4">
+                            <Row className="gx-4 ">
                                 {group.map(book => (
-                                    <Col key={book.id} xs={6} md={3}>
+                                    <Col key={book.id} xs={6} md={3} >
                                         <Link to={`/book/${book.book_id}`} key={book.book_id} className="text-decoration-none text-dark">
                                             <Card style={{ minHeight: '100%' }}>
-                                                <Card.Img variant="top" src={book.book_img} />
+                                                <Card.Img variant="top" src="" />
                                                 <Card.Body>
                                                     <Card.Title style={{ fontSize: '1rem' }}>{book.book_title}</Card.Title>
                                                     <Card.Text className="text-muted" style={{ fontSize: '0.9rem' }}>

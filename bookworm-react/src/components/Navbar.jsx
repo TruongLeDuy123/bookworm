@@ -6,6 +6,7 @@ import logo from '../assets/images/logo.png';
 const Navbar = () => {
     const [clicked, setClicked] = useState(false);
     const [user, setUser] = useState("");
+    const [cartQuantity, setCartQuantity] = useState(0)
     const location = useLocation();
     const navigate = useNavigate();
     const user_id = localStorage.getItem("user_id");
@@ -33,6 +34,20 @@ const Navbar = () => {
         };
     }, []);
 
+    useEffect(() => {
+        let quantity = +localStorage.getItem("quantity") || 0
+        setCartQuantity(quantity)
+        const handleCartUpdate = () => {
+            let quantity = +localStorage.getItem("quantity") || 0
+            setCartQuantity(quantity)
+        }
+        window.addEventListener("cartUpdated", handleCartUpdate)
+
+        // return () => {
+        //     window.removeEventListener("cartUpdated", handleCartUpdate)
+        // }
+    }, [])
+
     const handleLogout = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("full_name");
@@ -57,7 +72,7 @@ const Navbar = () => {
                     <li><Link className={isActive('/') ? 'active' : ''} to="/">Home</Link></li>
                     <li><Link className={isActive('/shop') ? 'active' : ''} to="/shop">Shop</Link></li>
                     <li><Link className={isActive('/about') ? 'active' : ''} to="/about">About</Link></li>
-                    <li><Link className={isActive('/cart') ? 'active' : ''} to={`/cart/${user_id}`}>Cart <span>(0)</span></Link></li>
+                    <li><Link className={isActive('/cart') ? 'active' : ''} to={`/cart/${user_id}`}>Cart <span>({cartQuantity})</span></Link></li>
                     {
                         user ? (
                             <div className="dropdown">
