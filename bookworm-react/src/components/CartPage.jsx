@@ -6,6 +6,7 @@ const ShoppingCart = () => {
     const { id } = useParams()
     const [orderItems, setOrderItems] = useState(null)
     const [cartTotal, setCartTotal] = useState(0)
+    const [quantity, setQuantity] = useState(0);
 
     const handlePlaceOrder = async () => {
         let user_id = localStorage.getItem("user_id")
@@ -25,8 +26,9 @@ const ShoppingCart = () => {
                     : item
             )
         );
-        let cartTotal = orderItems?.reduce((acc, item) => acc + ((item.price - item.discount_price) * item.quantity || 0), 0);
+        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1)* item.quantity) || 0), 0);
         setCartTotal(cartTotal);
+        setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
     };
 
     const decreaseQty = (bookId) => {
@@ -37,17 +39,26 @@ const ShoppingCart = () => {
                     : item
             )
         );
-        let cartTotal = orderItems?.reduce((acc, item) => acc + ((item.price - item.discount_price) * item.quantity || 0), 0);
+        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1)* item.quantity) || 0), 0);
         setCartTotal(cartTotal);
+        setQuantity(prev => (prev > 1 ? prev - 1 : 1));
     };
+
+    useEffect(() => {
+        if (orderItems) {
+            let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1)* item.quantity) || 0), 0);
+            setCartTotal(cartTotal);
+        }
+    }, [orderItems]);
 
 
     useEffect(() => {
         const fetchOrderItems = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:8002/cart/${id}`);
+                const res = await fetch(`http://127.0.0.1:8003/cart/${id}`);
                 const data = await res.json();
                 setOrderItems(data);
+                console.log("check order: ", data);
             } catch (err) {
                 console.error("Failed to fetch books", err);
             }

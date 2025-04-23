@@ -28,7 +28,7 @@ const LoginForm = () => {
         }
 
         try {
-            const response = await fetch("http://127.0.0.1:8002/login", {
+            const response = await fetch("http://127.0.0.1:8003/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -54,8 +54,9 @@ const LoginForm = () => {
                     confirmButtonText: 'OK'
                 });
                 localStorage.setItem("access_token", data.access_token);
-                localStorage.setItem("full_name", data.full_name);
+                localStorage.setItem("refresh_token", data.refresh_token);
                 localStorage.setItem("user_id", data.user_id);
+                localStorage.setItem("full_name", data.full_name);
                 window.dispatchEvent(new Event("full_name_updated"));
                 setTimeout(() => {
                     navigate('/');

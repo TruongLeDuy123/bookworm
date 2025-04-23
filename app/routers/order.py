@@ -30,7 +30,7 @@ def get_cart_items(user_id: int, db: Session = Depends(get_db)):
         for item in items:
             book = item.book
             # Gọi API `book-has-discount/{book_id}` để lấy thông tin giảm giá
-            response = requests.get(f"http://127.0.0.1:8002/book-has-discount/{book.id}")
+            response = requests.get(f"http://127.0.0.1:8003/book-has-discount/{book.id}")
             discount_data = response.json()
             has_discount = discount_data.get('has_discount', False)
             discount_price = discount_data.get('discount_price', 0) if has_discount else 0
@@ -38,7 +38,7 @@ def get_cart_items(user_id: int, db: Session = Depends(get_db)):
                 "book_id": book.id,
                 "book_title": book.book_title,
                 "author_name": book.author.author_name if book.author else "Unknown Author",
-                "book_cover_photo": book.book_cover_photo,
+                "book_cover_photo": book.book_cover_photo,  
                 "price": float(item.price),
                 "quantity": item.quantity,
                 "total": float(item.price) * item.quantity,

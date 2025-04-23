@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Dropdown, Pagination, Accordion } from 'react-bootstrap';
 import BookCard from './BookCard';
+import { Link } from 'react-router-dom';
 
 const ShopPage = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -23,8 +24,8 @@ const ShopPage = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                let url = `http://127.0.0.1:8002/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
-                let url_count = `http://127.0.0.1:8002/books/count?`
+                let url = `http://127.0.0.1:8003/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
+                let url_count = `http://127.0.0.1:8003/books/count?`
 
                 if (selectIdCategory !== null) {
                     url += `&category_id=${selectIdCategory}`;
@@ -46,6 +47,8 @@ const ShopPage = () => {
                 let res = await data.json();
                 let res1 = await data_count.json();
                 setBooks(res);
+                console.log("check books: ", res);
+
                 setTotalBooks(res1.count)
                 setNameFilter(categoryFilter + authorFilter + starFilter)
             }
@@ -59,7 +62,7 @@ const ShopPage = () => {
     useEffect(() => {
         const fetchAllCategoriesName = async () => {
             try {
-                let allCategoriesName = await fetch(`http://127.0.0.1:8002/categories`);
+                let allCategoriesName = await fetch(`http://127.0.0.1:8003/categories`);
                 let res = await allCategoriesName.json()
                 setCategoriesName(res)
             } catch (e) {
@@ -69,7 +72,7 @@ const ShopPage = () => {
 
         const fetchAllAuthorsName = async () => {
             try {
-                let allAuthorsName = await fetch(`http://127.0.0.1:8002/authors`);
+                let allAuthorsName = await fetch(`http://127.0.0.1:8003/authors`);
                 let res = await allAuthorsName.json()
                 setAuthorsName(res)
             } catch (e) {
@@ -216,7 +219,9 @@ const ShopPage = () => {
                             {books && books.length ? (
                                 books.map((book, idx) => (
                                     <Col key={idx} xs={6} md={4} lg={3} xl={3} className="mb-4">
-                                        <BookCard book={book} />
+                                        <Link to={`/book/${book.id}`} key={book.id} className="text-decoration-none text-dark">
+                                            <BookCard book={book} />
+                                        </Link>
                                     </Col>
                                 ))
 

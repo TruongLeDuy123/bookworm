@@ -9,7 +9,7 @@ function BookCard({ book }) {
                 <Card.Title style={{ fontSize: '1rem' }}>{book.book_title}</Card.Title>
                 <Card.Text className="text-muted mb-1">{book.author_name}</Card.Text>
                 <Card.Text className="text-muted">
-                    {book.total_discount > 0 ? (
+                    {book.book_price - book.final_price > 0 ? (
                         <>
                             <span className="text-muted text-decoration-line-through me-2">
                                 ${Number(book.book_price).toFixed(2)}

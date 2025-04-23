@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel, Card, Button, Container, Row, Col, Spinner } from 'react-bootstrap';
-import "./OnSale.css";
+// import "./OnSale.css";
 
 const chunk = (arr, size) => {
     return arr.reduce((acc, _, i) => {
@@ -17,7 +17,7 @@ const OnSale = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                const res = await fetch("http://127.0.0.1:8002/books/top-discount");
+                const res = await fetch("http://127.0.0.1:8003/books/top-discount");
                 const data = await res.json();
                 setBooks(data);
                 console.log("check books: ", data);
@@ -58,20 +58,20 @@ const OnSale = () => {
                                     <Col key={book.id} xs={6} md={3} >
                                         <Link to={`/book/${book.book_id}`} key={book.book_id} className="text-decoration-none text-dark">
                                             <Card style={{ minHeight: '100%' }}>
-                                                <Card.Img variant="top" src="" />
+                                                <Card.Img variant="top" src={book.book_img} />
                                                 <Card.Body>
                                                     <Card.Title style={{ fontSize: '1rem' }}>{book.book_title}</Card.Title>
                                                     <Card.Text className="text-muted" style={{ fontSize: '0.9rem' }}>
                                                         {book.author_name}
                                                     </Card.Text>
                                                     <Card.Text>
-                                                        {book.total_discount > 0 ?
+                                                        {book.discount_amount > 0 ?
                                                             (
                                                                 <>
                                                                     <span className="text-muted text-decoration-line-through me-2">
                                                                         ${Number(book.book_price).toFixed(2)}
                                                                     </span>
-                                                                    <strong>${Number(book.final_price).toFixed(2)}</strong>
+                                                                    <strong>${Number(book.discount_price).toFixed(2)}</strong>
                                                                 </>
                                                             ) :
                                                             (

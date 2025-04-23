@@ -79,7 +79,7 @@ class Review(Base):
     review_title = Column(String(120))
     review_details = Column(Text)
     review_date = Column(TIMESTAMP)
-    rating_start = Column(String(255))
+    rating_start = Column(Integer)
 
     book = relationship("Book", back_populates="reviews")
 

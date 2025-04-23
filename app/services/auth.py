@@ -14,37 +14,60 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = "your-secret-key" # Change this to a secure secret key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 # Password hashing settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def create_access_token(data: dict, expires_delta: timedelta):
+def create_token(data: dict, expires_delta: timedelta, token_type: str):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    to_encode.update({
+        "exp": expire,
+        "type": token_type  # access hoặc refresh
+    })
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+def create_access_token(data: dict, expires_delta: timedelta):
+    return create_token(data, expires_delta, "access")
+
+def create_refresh_token(data: dict, expires_delta: timedelta):
+    return create_token(data, expires_delta, "refresh")
+
+# ====== AUTH UTILS ======
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def authenticate_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(password, user.password):
-        return False
+        return None
     return user
 
-async def login(form_data: OAuth2PasswordRequestForm=Depends(), db: Session=Depends(get_db)):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
-        return {"error": "Invalid credentials"}
-        # raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={
+            "sub": user.email, 
+            "full_name": f"{user.first_name} {user.last_name}",
+            "user_id": user.id
+        },
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    return {"access_token": access_token, "token_type": "bearer", "full_name": user.first_name + " " + user.last_name, "user_id": user.id}   
- 
+    refresh_token = create_refresh_token(
+        data={"sub": user.email},
+        expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    )
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "full_name": f"{user.first_name} {user.last_name}",
+        "user_id": user.id
+    }
 
 # @app.get("/users/me", response_model=UserOut)
 # async def get_current_user(token: str=Depends(oauth2_schema), db: Session = Depends(get_db)):

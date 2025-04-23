@@ -20,7 +20,7 @@ const BookDetailPage = () => {
     useEffect(() => {
         const fetchInfoBook = async () => {
             try {
-                let dataBook = await fetch(`http://127.0.0.1:8002/book/${id}`);
+                let dataBook = await fetch(`http://127.0.0.1:8003/book/${id}`);
                 let res = await dataBook.json();
                 setBookData(res);
                 console.log("check book data: ", res);
@@ -31,7 +31,7 @@ const BookDetailPage = () => {
         };
         const fetchDetailBook = async () => {
             try {
-                let book = await fetch(`http://127.0.0.1:8002/book-has-discount/${id}`);
+                let book = await fetch(`http://127.0.0.1:8003/book-has-discount/${id}`);
                 let res = await book.json();
                 setBook(res);
                 console.log("check detail: ", res);
@@ -57,8 +57,7 @@ const BookDetailPage = () => {
             confirmButtonText: 'OK'
         });
         if (!localStorage.getItem("quantity")) localStorage.setItem("quantity", quantity)
-        else 
-        {
+        else {
             let currentQuantity = +localStorage.getItem("quantity") + quantity
             localStorage.setItem("quantity", currentQuantity)
         }
@@ -114,7 +113,7 @@ const BookDetailPage = () => {
                                     (
                                         <>
                                             <span className="text-muted text-decoration-line-through me-2">${Number(bookData.book_price).toFixed(2)}</span>
-                                            <strong>${Number(bookData.book_price - book.total_discount).toFixed(2)}</strong>
+                                            <strong>${Number(book.discount_price).toFixed(2)}</strong>
                                         </>
                                     ) :
                                     (
