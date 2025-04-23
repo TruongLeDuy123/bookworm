@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form, Dropdown, Pagination, Accordion } from 'react-bootstrap';
-import BookCard from './BookCard';
-import { Link } from 'react-router-dom';
+import { Container, Row, Col, Form, Pagination, Accordion } from 'react-bootstrap';
+import BookCarousel from '../components/BookCarousel';
 
 const ShopPage = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -215,25 +214,10 @@ const ShopPage = () => {
                     </div>
 
                     <div className="">
-                        <Row>
-                            {books && books.length ? (
-                                books.map((book, idx) => (
-                                    <Col key={idx} xs={6} md={4} lg={3} xl={3} className="mb-4">
-                                        <Link to={`/book/${book.id}`} key={book.id} className="text-decoration-none text-dark">
-                                            <BookCard book={book} />
-                                        </Link>
-                                    </Col>
-                                ))
-
-                            ) : (
-                                <Col xs={6} md={4} lg={3} xl={3} className="mb-4">
-                                    <p className="text-muted mt-3">No data available</p>
-                                </Col>
-                            )}
-                        </Row>
+                        <BookCarousel group={books} />
                     </div>
 
-                    <div className="d-flex justify-content-center">
+                    <div className="d-flex justify-content-center mt-5">
                         {totalBooks > 0 ? (
                             <Pagination>
                                 <Pagination.Prev disabled={page === 1} onClick={() => handlePageChange(page - 1)} />

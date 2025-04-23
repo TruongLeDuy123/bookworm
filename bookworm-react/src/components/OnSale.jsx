@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel, Card, Button, Container, Row, Col, Spinner } from 'react-bootstrap';
-// import "./OnSale.css";
+import BookCarousel from './BookCarousel';
 
 const chunk = (arr, size) => {
     return arr.reduce((acc, _, i) => {
@@ -53,47 +53,17 @@ const OnSale = () => {
                 <Carousel indicators={false}>
                     {chunkedBooks.map((group, idx) => (
                         <Carousel.Item key={idx}>
-                            <Row className="gx-4 ">
-                                {group.map(book => (
-                                    <Col key={book.id} xs={6} md={3} >
-                                        <Link to={`/book/${book.book_id}`} key={book.book_id} className="text-decoration-none text-dark">
-                                            <Card style={{ minHeight: '100%' }}>
-                                                <Card.Img variant="top" src={book.book_img} />
-                                                <Card.Body>
-                                                    <Card.Title style={{ fontSize: '1rem' }}>{book.book_title}</Card.Title>
-                                                    <Card.Text className="text-muted" style={{ fontSize: '0.9rem' }}>
-                                                        {book.author_name}
-                                                    </Card.Text>
-                                                    <Card.Text>
-                                                        {book.discount_amount > 0 ?
-                                                            (
-                                                                <>
-                                                                    <span className="text-muted text-decoration-line-through me-2">
-                                                                        ${Number(book.book_price).toFixed(2)}
-                                                                    </span>
-                                                                    <strong>${Number(book.discount_price).toFixed(2)}</strong>
-                                                                </>
-                                                            ) :
-                                                            (
-                                                                <strong>
-                                                                    ${Number(book.book_price).toFixed(2)}
-                                                                </strong>
-                                                            )
-                                                        }
-                                                    </Card.Text>
-                                                </Card.Body>
-                                            </Card>
-                                        </Link>
-                                    </Col>
-                                ))}
-                            </Row>
+                            <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                                <BookCarousel group={group} />
+                            </div>
                         </Carousel.Item>
                     ))}
                 </Carousel>
             ) : (
                 <p>No books on sale.</p>
-            )}
-        </Container>
+            )
+            }
+        </Container >
     )
 }
 

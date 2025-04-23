@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Tabs, Tab, Row, Col } from 'react-bootstrap';
 import BookCard from './BookCard';
+import BookCarousel from './BookCarousel';
 
 export default function FeaturedBooks() {
     const [key, setKey] = useState('recommended');
@@ -36,23 +37,15 @@ export default function FeaturedBooks() {
                 variant="pills"
             >
                 <Tab eventKey="recommended" title="Recommended">
-                    <Row>
-                        {recommendedBooks.map((book, idx) => (
-                            <Col key={idx} xs={6} md={4} lg={3} xl={3} className="mb-4">
-                                <BookCard book={book} />
-                            </Col>
-                        ))}
-                    </Row>
+                    <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                        <BookCarousel group={recommendedBooks} />
+                    </div>
                 </Tab>
 
                 <Tab eventKey="popular" title="Popular">
-                    <Row>
-                        {popularBooks.map((book, idx) => (
-                            <Col key={idx} xs={6} md={4} lg={3} xl={3} className="mb-4">
-                                <BookCard book={book} />
-                            </Col>
-                        ))}
-                    </Row>
+                    <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                        <BookCarousel group={popularBooks} />
+                    </div>
                 </Tab>
             </Tabs>
         </Container>

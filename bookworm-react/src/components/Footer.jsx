@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Image } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 
@@ -12,7 +12,7 @@ const Footer = () => {
                 <Row className="mb-4">
                     <Col xs={12} sm={6} md={4}>
                         <div className="d-flex align-items-center mb-2">
-                            <Image src={logo} alt="logo" height={40} className="me-2" />
+                            <img src={logo} alt="logo" className="me-2 w-8 h-8" />
                             <h5 className="mb-0">Bookworm</h5>
                         </div>
                         <p className="text-muted mb-1">The best place to find your favorite books.</p>
@@ -30,7 +30,7 @@ const Footer = () => {
                         </p>
                     </Col>
 
-                    <Col xs={6} md={2}>
+                    <Col xs={6} md={2} className='mt-2'>
                         <h6>Company</h6>
                         <ul className="list-unstyled">
                             <li><Link to="/about" className="text-muted text-decoration-none">About Us</Link></li>
@@ -39,7 +39,7 @@ const Footer = () => {
                         </ul>
                     </Col>
 
-                    <Col xs={6} md={2}>
+                    <Col xs={6} md={2} className='mt-2'>
                         <h6>Support</h6>
                         <ul className="list-unstyled">
                             <li><Link to="/faq" className="text-muted text-decoration-none">FAQ</Link></li>
@@ -48,7 +48,7 @@ const Footer = () => {
                         </ul>
                     </Col>
 
-                    <Col xs={6} md={2}>
+                    <Col xs={6} md={2} className='mt-2'>
                         <h6>Legal</h6>
                         <ul className="list-unstyled">
                             <li><Link to="/return-policy" className="text-muted text-decoration-none">Return Policy</Link></li>
@@ -57,7 +57,7 @@ const Footer = () => {
                         </ul>
                     </Col>
 
-                    <Col xs={6} md={2}>
+                    <Col xs={6} md={2} className='mt-2'>
                         <h6>Follow Us</h6>
                         <div className="d-flex gap-2">
                             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted fs-5">

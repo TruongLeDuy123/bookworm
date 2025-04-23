@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import logo from "../assets/images/logo.png"
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -88,13 +89,13 @@ const Header = () => {
     return (
         <div className="flex flex-col min-h-screen">
 
-            <header className="bg-gray-50 px-6 flex justify-between items-center border-b border-gray-200 fixed top-0 left-0 w-full z-50">
+            <header className="bg-gray-50 px-1 flex justify-between items-center border-b border-gray-200 fixed top-0 left-0 w-full z-50">
                 {/* Logo */}
-                <div className="container mx-auto px-6 flex justify-between items-center">
+                <div className="container  flex justify-between items-center">
                     <div className="z-50">
                         <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gray-400 text-xs text-white flex items-center justify-center mr-2">
-                                32x32
+                            <div className="w-8 h-8 mr-2">
+                                <img src={logo} alt="" />
                             </div>
                             <h1 className="text-lg font-semibold text-black mt-2">BOOKWORM</h1>
                         </div>
@@ -176,18 +177,53 @@ const Header = () => {
 
                 {/* Mobile Menu */}
                 {menuOpen && (
-                    <div className="fixed top-16 left-0 w-full bg-gray-50 border-t border-gray-200 shadow-md md:hidden z-40">
+                    <div className="fixed top-11 left-0 w-full bg-gray-50 border-t border-gray-200 shadow-md">
                         <nav className="px-6 py-4 text-sm text-gray-700">
                             <ul className="flex flex-col gap-4">
-                                <li><Link to="/" onClick={toggleMenu} className={navLinkClass}>Home</Link></li>
-                                <li><Link to="/shop" onClick={toggleMenu} className={navLinkClass}>Shop</Link></li>
-                                <li><Link to="/about" onClick={toggleMenu} className={navLinkClass}>About</Link></li>
-                                <li><Link to="/cart" onClick={toggleMenu} className={navLinkClass}>Cart (0)</Link></li>
-                                <li><Link to="/login" onClick={toggleMenu} className={navLinkClass}>Sign In</Link></li>
+                            <li><NavLink to="/" className={({ isActive }) => getLinkClass(isActive)}>Home</NavLink></li>
+                                <li><NavLink to="/shop" className={({ isActive }) => getLinkClass(isActive)}>Shop</NavLink></li>
+                                <li><NavLink to="/about" className={({ isActive }) => getLinkClass(isActive)}>About</NavLink></li>
+                                <li><NavLink to={`/cart/${user_id}`} className={({ isActive }) => getLinkClass(isActive)}>Cart <span>({cartQuantity})</span></NavLink></li>
+                                <li>
+                                    {user ? (
+                                        <div className="relative inline-block" ref={dropdownRef}>
+                                            <button
+                                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                                className="bg-secondary inline-flex justify-between items-center max-w-[200px] px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition"
+                                            >
+                                                <span className="truncate">{user}</span>
+
+                                            </button>
+
+                                            {dropdownOpen && (
+                                                <div className=" absolute mt-2 rounded-md bg-white border-2 shadow-lg ring-5 ring-black ring-opacity-5 focus:outline-none">
+                                                    <ul className="py-1 px-3 hover:bg-gray-100">
+                                                        <li>
+                                                            <button
+                                                                onClick={handleLogout}
+                                                                className="block w-full py-1 text-gray-700"
+                                                            >
+                                                                Sign out
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <NavLink
+                                            to="/login"
+                                            className={({ isActive }) => getLinkClass(isActive)}
+                                        >
+                                            Sign in
+                                        </NavLink>
+                                    )}
+                                </li>
                             </ul>
                         </nav>
                     </div>
                 )}
+
             </header>
         </div>
     );
