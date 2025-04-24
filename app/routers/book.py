@@ -20,7 +20,7 @@ def get_top_rated_books(db: Session = Depends(get_db)):
     discount_subq = (
         db.query(
             Discount.book_id,
-            func.max(Discount.discount_price).label("discount_price")
+            func.min(Discount.discount_price).label("discount_price")
         )
         .filter(
             and_(
@@ -60,8 +60,7 @@ def get_top_rated_books(db: Session = Depends(get_db)):
         db.query(
             Book.book_title,
             Book.book_price,
-            func.coalesce(discount_subq.c.discount_price, 0).label("discount_price"),
-            (Book.book_price - func.coalesce(discount_subq.c.discount_price, 0)).label("final_price"),
+            func.coalesce(discount_subq.c.discount_price, 0).label("final_price"),
             Author.author_name,
             Book.book_cover_photo.label("book_img"),
             func.coalesce(rating_subq.c.avg_rating, 0).label("avg_rating")
@@ -71,7 +70,7 @@ def get_top_rated_books(db: Session = Depends(get_db)):
         .join(rating_subq, Book.id == rating_subq.c.book_id)
         .order_by(
             desc(rating_subq.c.avg_rating),
-            (Book.book_price - func.coalesce(discount_subq.c.discount_price, 0)).asc()
+            func.coalesce(discount_subq.c.discount_price, 0).asc()
         )
         .limit(8)
     )
@@ -84,7 +83,6 @@ def get_top_rated_books(db: Session = Depends(get_db)):
         result.append({
             "book_title": book.book_title,
             "book_price": float(book.book_price),
-            "discount_price": float(book.discount_price),
             "final_price": float(book.final_price),
             "author_name": book.author_name,
             "book_img": book.book_img,
@@ -96,11 +94,11 @@ def get_top_rated_books(db: Session = Depends(get_db)):
 @router.get("/books/top-reviewed-poplular")
 def get_top_books_most_reviews(db: Session = Depends(get_db)):
     today = date.today()
-    # Subquery: tổng discount cho mỗi book
+    # Subquery: min discount cho mỗi book
     discount_subq = (
         db.query(
             Discount.book_id,
-            func.sum(Discount.discount_price).label("total_discount")
+            func.min(Discount.discount_price).label("total_discount")
         )
         .filter(
             and_(
@@ -128,7 +126,7 @@ def get_top_books_most_reviews(db: Session = Depends(get_db)):
         .join(Author, Book.author_id == Author.id)
         .outerjoin(Review, Book.id == Review.book_id)
         .group_by(Book.id, discount_subq.c.total_discount, Author.author_name)
-        .order_by(desc(func.count(Review.id)), asc(Book.book_price - func.coalesce(discount_subq.c.total_discount, 0)))
+        .order_by(desc(func.count(Review.id)), asc(func.coalesce(discount_subq.c.total_discount, 0)))
         .limit(8)
     )
 
@@ -146,7 +144,7 @@ def get_top_books_most_reviews(db: Session = Depends(get_db)):
             total_reviews
         ) = book
 
-        final_price = max(book_price - total_discount, 0)
+        final_price = max(total_discount, 0)
 
         result.append({
             "id": book_id,
@@ -161,48 +159,6 @@ def get_top_books_most_reviews(db: Session = Depends(get_db)):
 
     return result
 
-
-# @router.get("/top-books-with-most-discount", response_model=List[dict])
-# def get_top_books_with_most_discount(db: Session = Depends(get_db)):
-#     # Subquery: tính tổng giảm giá cho từng sách
-#     discount_subq = (
-#         db.query(
-#             Discount.book_id,
-#             func.sum(Discount.discount_price).label("total_discount")
-#         )
-#         .group_by(Discount.book_id)
-#         .subquery()
-#     )
-
-#     # Truy vấn sách + tổng giảm giá
-#     books = (
-#         db.query(
-#             Book.id,
-#             Book.book_title,
-#             Book.book_price,
-#             func.coalesce(discount_subq.c.total_discount, 0).label("total_discount"),
-#             (Book.book_price - func.coalesce(discount_subq.c.total_discount, 0)).label("final_price")
-#         )
-#         .join(discount_subq, Book.id == discount_subq.c.book_id)
-#         .order_by(desc(discount_subq.c.total_discount))  # sắp xếp theo tổng giảm giá giảm dần
-#         .limit(10)
-#         .all()
-#     )
-
-#     # Trả về dữ liệu
-#     result = []
-#     for book in books:
-#         result.append({
-#             "id": book.id,
-#             "book_title": book.book_title,
-#             "book_price": book.book_price,
-#             "total_discount": book.total_discount,
-#             "final_price": book.final_price,
-
-#         })
-
-#     return result
-
 @router.get("/books/top-discount")
 def get_top_discount_books(db: Session = Depends(get_db)):
     today = date.today()
@@ -215,7 +171,6 @@ def get_top_discount_books(db: Session = Depends(get_db)):
             Book.id,
             Discount.discount_price,
             (Book.book_price - Discount.discount_price).label("discount_amount"),
-            (Book.book_price - Discount.discount_price).label("final_price"),
             Author.author_name,
             Book.book_cover_photo.label("book_img")
         )
@@ -260,17 +215,6 @@ async def get_book_by_id(db: Session = Depends(get_db), book_id: int = None):
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return book
-
-# @router.get("/books/pagination", response_model=List[BookSchema])
-# def pagination(skip: int = Query(0, ge=0), limit: int = Query(10, ge=1), category_id: Optional[int] = Query(None),
-#     author_id: Optional[int] = Query(None), sort: Optional[str] = Query("0"), db: Session = Depends(get_db)):
-#     query = db.query(Book)
-#     if category_id is not None:
-#         query = query.filter(Book.category_id == category_id)
-#     if author_id is not None:
-#         query = query.filter(Book.author_id == author_id)
-#     items = query.offset(skip).limit(limit).all()
-#     return items
 
 @router.get("/books/filter-by-rating", response_model=List[BookSchema])
 def filter_books_by_rating(min_rating: float = Query(0, ge=0, le=5), db: Session = Depends(get_db)):
@@ -317,7 +261,7 @@ def filter_books_by_rating(min_rating: float = Query(0, ge=0, le=5), db: Session
 def pagination(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1),
-    sort: str = Query("none", regex="^(none|price_asc|price_desc|popularity)$"),
+    sort: str = Query("none", regex="^(none|price_asc|price_desc|popularity|on_sale)$"),
     category_id: Optional[int] = Query(None),
     author_id: Optional[int] = Query(None),
     min_rating: float = Query(0, ge=0, le=5),
@@ -329,7 +273,7 @@ def pagination(
     discount_subq = (
         db.query(
             Discount.book_id,
-            func.max(Discount.discount_price).label("discount_price")
+            func.min(Discount.discount_price).label("discount_price")
         )
         .filter(
             and_(
@@ -362,6 +306,8 @@ def pagination(
 
     # Biểu thức final_price = discount_price nếu có, ngược lại = book_price
     final_price_expr = func.coalesce(discount_subq.c.discount_price, Book.book_price)
+    # Biểu thức discount_amount = book_price - discount_price (nếu có)
+    discount_amount_expr = Book.book_price - func.coalesce(discount_subq.c.discount_price, Book.book_price)
 
     # Truy vấn chính
     query = db.query(
@@ -405,6 +351,11 @@ def pagination(
             query = query.order_by(asc(final_price_expr))
         elif sort == "price_desc":
             query = query.order_by(desc(final_price_expr))
+        elif sort == "on_sale":
+            query = query.order_by(
+                desc(discount_amount_expr),
+                asc(final_price_expr)
+            )
 
     # Pagination
     books = query.offset(skip).limit(limit).all()
@@ -433,6 +384,7 @@ def pagination(
         })
 
     return result
+
 
 @router.get("/books/count")
 def count_books(category_id: Optional[int] = Query(None), author_id: Optional[int] = Query(None), 
@@ -512,49 +464,49 @@ def get_books_by_author(author_name: str, db: Session = Depends(get_db)):
     author = db.query(Author).filter(Author.author_name == author_name).first()
     return db.query(Book).filter(Book.author_id == author.id).all()
 
-@router.get("/books/top-reviewed")
-def get_top_reviewed_books(db: Session = Depends(get_db)):
-    today = date.today()
-    # Subquery để lấy giá sau giảm (final_price)
-    subq_discount = (
-        db.query(
-            Discount.book_id,
-            (Book.book_price - Discount.discount_price).label("final_price")
-        )
-        .filter(
-            and_(
-                Discount.discount_price > 0,
-                Discount.discount_start_date <= today,
-                or_(Discount.discount_end_date == None, Discount.discount_end_date >= today)
-            )
-        )
-        .join(Book, Book.id == Discount.book_id)
-        .subquery()
-    )
+# @router.get("/books/top-reviewed")
+# def get_top_reviewed_books(db: Session = Depends(get_db)):
+#     today = date.today()
+#     # Subquery để lấy giá sau giảm (final_price)
+#     subq_discount = (
+#         db.query(
+#             Discount.book_id,
+#             (Book.book_price - Discount.discount_price).label("final_price")
+#         )
+#         .filter(
+#             and_(
+#                 Discount.discount_price > 0,
+#                 Discount.discount_start_date <= today,
+#                 or_(Discount.discount_end_date == None, Discount.discount_end_date >= today)
+#             )
+#         )
+#         .join(Book, Book.id == Discount.book_id)
+#         .subquery()
+#     )
 
-    # Truy vấn chính
-    results = (
-        db.query(
-            Book.id,
-            Book.book_title,
-            func.count(Review.id).label("review_count"),
-            func.coalesce(subq_discount.c.final_price, Book.book_price).label("final_price")
-        )
-        .outerjoin(Review, Book.id == Review.book_id)
-        .outerjoin(subq_discount, Book.id == subq_discount.c.book_id)
-        .group_by(Book.id, subq_discount.c.final_price)
-        .order_by(func.count(Review.id).desc())
-        .limit(8)
-        .all()
-    )
+#     # Truy vấn chính
+#     results = (
+#         db.query(
+#             Book.id,
+#             Book.book_title,
+#             func.count(Review.id).label("review_count"),
+#             func.coalesce(subq_discount.c.final_price, Book.book_price).label("final_price")
+#         )
+#         .outerjoin(Review, Book.id == Review.book_id)
+#         .outerjoin(subq_discount, Book.id == subq_discount.c.book_id)
+#         .group_by(Book.id, subq_discount.c.final_price)
+#         .order_by(func.count(Review.id).desc())
+#         .limit(8)
+#         .all()
+#     )
 
-    # Chuyển dữ liệu thành dạng list of dicts
-    return [
-        {
-            "book_id": r.id,
-            "title": r.book_title,
-            "review_count": r.review_count,
-            "final_price": float(r.final_price)
-        }
-        for r in results
-    ]
+#     # Chuyển dữ liệu thành dạng list of dicts
+#     return [
+#         {
+#             "book_id": r.id,
+#             "title": r.book_title,
+#             "review_count": r.review_count,
+#             "final_price": float(r.final_price)
+#         }
+#         for r in results
+#     ]

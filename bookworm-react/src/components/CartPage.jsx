@@ -26,7 +26,7 @@ const ShoppingCart = () => {
                     : item
             )
         );
-        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1)* item.quantity) || 0), 0);
+        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1) * item.quantity) || 0), 0);
         setCartTotal(cartTotal);
         setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
     };
@@ -39,14 +39,14 @@ const ShoppingCart = () => {
                     : item
             )
         );
-        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1)* item.quantity) || 0), 0);
+        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1) * item.quantity) || 0), 0);
         setCartTotal(cartTotal);
         setQuantity(prev => (prev > 1 ? prev - 1 : 1));
     };
 
     useEffect(() => {
         if (orderItems) {
-            let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1)* item.quantity) || 0), 0);
+            let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1) * item.quantity) || 0), 0);
             setCartTotal(cartTotal);
         }
     }, [orderItems]);
@@ -55,7 +55,7 @@ const ShoppingCart = () => {
     useEffect(() => {
         const fetchOrderItems = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:8003/cart/${id}`);
+                const res = await fetch(`http://127.0.0.1:8001/cart/${id}`);
                 const data = await res.json();
                 setOrderItems(data);
                 console.log("check order: ", data);

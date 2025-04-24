@@ -20,7 +20,7 @@ const BookDetailPage = () => {
     useEffect(() => {
         const fetchInfoBook = async () => {
             try {
-                let dataBook = await fetch(`http://127.0.0.1:8003/book/${id}`);
+                let dataBook = await fetch(`http://127.0.0.1:8001/book/${id}`);
                 let res = await dataBook.json();
                 setBookData(res);
                 console.log("check book data: ", res);
@@ -31,7 +31,7 @@ const BookDetailPage = () => {
         };
         const fetchDetailBook = async () => {
             try {
-                let book = await fetch(`http://127.0.0.1:8003/book-has-discount/${id}`);
+                let book = await fetch(`http://127.0.0.1:8001/book-has-discount/${id}`);
                 let res = await book.json();
                 setBook(res);
                 console.log("check detail: ", res);

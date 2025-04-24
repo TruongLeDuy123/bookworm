@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Pagination, Accordion } from 'react-bootstrap';
 import BookCarousel from '../components/BookCarousel';
+import FilterSidebar from '../components/FilterSideBar';
+import BookHeader from '../components/BookHeader';
+import BookPagination from '../components/BookPagination';
 
 const ShopPage = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -11,20 +14,20 @@ const ShopPage = () => {
     const [limit, setLimit] = useState(5);
     const [categoriesName, setCategoriesName] = useState([])
     const [authorsName, setAuthorsName] = useState([])
-    const [nameFilter, setNameFilter] = useState([])
+    const [nameFilter, setNameFilter] = useState("")
     const [categoryFilter, setCategoryFilter] = useState("")
     const [authorFilter, setAuthorFilter] = useState("")
     const [starFilter, setStarFilter] = useState("")
     const [selectIdCategory, setSelectIdCategory] = useState(null)
     const [selectIdAuthor, setSelectIdAuthor] = useState(null)
-    const [sortOption, setSortOption] = useState("0")
+    const [sortOption, setSortOption] = useState("on_sale")
     const [selectedStar, setSelectedStar] = useState(null)
 
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                let url = `http://127.0.0.1:8003/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
-                let url_count = `http://127.0.0.1:8003/books/count?`
+                let url = `http://127.0.0.1:8001/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
+                let url_count = `http://127.0.0.1:8001/books/count?`
 
                 if (selectIdCategory !== null) {
                     url += `&category_id=${selectIdCategory}`;
@@ -47,9 +50,7 @@ const ShopPage = () => {
                 let res1 = await data_count.json();
                 setBooks(res);
                 console.log("check books: ", res);
-
                 setTotalBooks(res1.count)
-                setNameFilter(categoryFilter + authorFilter + starFilter)
             }
             catch (e) {
                 console.error('Error fetching books:', e);
@@ -59,9 +60,17 @@ const ShopPage = () => {
     }, [page, limit, selectIdCategory, selectIdAuthor, selectedStar, sortOption])
 
     useEffect(() => {
+        let arrayFilter = []
+        if (categoryFilter)arrayFilter.push(categoryFilter)
+        if (authorFilter)arrayFilter.push(authorFilter)
+        if (starFilter)arrayFilter.push(starFilter)
+        setNameFilter(arrayFilter.join('-'))
+    }, [categoryFilter, authorFilter, starFilter])
+
+    useEffect(() => {
         const fetchAllCategoriesName = async () => {
             try {
-                let allCategoriesName = await fetch(`http://127.0.0.1:8003/categories`);
+                let allCategoriesName = await fetch(`http://127.0.0.1:8001/categories`);
                 let res = await allCategoriesName.json()
                 setCategoriesName(res)
             } catch (e) {
@@ -71,7 +80,7 @@ const ShopPage = () => {
 
         const fetchAllAuthorsName = async () => {
             try {
-                let allAuthorsName = await fetch(`http://127.0.0.1:8003/authors`);
+                let allAuthorsName = await fetch(`http://127.0.0.1:8001/authors`);
                 let res = await allAuthorsName.json()
                 setAuthorsName(res)
             } catch (e) {
@@ -88,6 +97,7 @@ const ShopPage = () => {
 
     const handleLimitChange = (event) => {
         setLimit(Number(event.target.value));
+        setPage(1)
     };
 
     const handleSelectedAuthor = (id, author_name, author_id) => {
@@ -124,7 +134,7 @@ const ShopPage = () => {
             <Row>
                 {/* Sidebar */}
                 <Col md={3}>
-                    <p className='fw-bold mt-4'>Filter By</p>
+                    {/* <p className='fw-bold mt-4'>Filter By</p>
                     <Accordion defaultActiveKey="0" className="mb-3">
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>
@@ -190,12 +200,23 @@ const ShopPage = () => {
                                 ))}
                             </Accordion.Body>
                         </Accordion.Item>
-                    </Accordion>
+                    </Accordion> */}
+
+                    <FilterSidebar
+                        categoriesName={categoriesName}
+                        authorsName={authorsName}
+                        selectedCategory={selectedCategory}
+                        selectedAuthor={selectedAuthor}
+                        selectedStar={selectedStar}
+                        handleSelectedCategory={handleSelectedCategory}
+                        handleSelectedAuthor={handleSelectedAuthor}
+                        handleSelectedStar={handleSelectedStar}
+                    />
                 </Col>
 
                 {/* Main content */}
                 <Col md={9} className='mt-4'>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
+                    {/* <div className="d-flex justify-content-between align-items-center mb-4">
                         <p className="">Showing {1 + (page - 1) * limit}-{Math.min(page * limit, totalBooks)} of {totalBooks} books</p>
                         <div className="d-flex gap-4">
                             <Form.Select size="sm" onChange={handleSortChange} className="w-auto">
@@ -211,14 +232,28 @@ const ShopPage = () => {
                                 <option value="25">Show 25</option>
                             </Form.Select>
                         </div>
-                    </div>
+                    </div> */}
+                    <BookHeader
+                        page={page}
+                        limit={limit}
+                        totalBooks={totalBooks}
+                        handleSortChange={handleSortChange}
+                        handleLimitChange={handleLimitChange}
+                        nameFilter={nameFilter}
+                    />
 
                     <div className="">
                         <BookCarousel group={books} />
                     </div>
 
-                    <div className="d-flex justify-content-center mt-5">
-                        {totalBooks > 0 ? (
+                    <div className="d-flex justify-content-center mt-5 mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                        <BookPagination
+                            currentPage={page}
+                            totalBooks={totalBooks}
+                            limit={limit}
+                            onPageChange={handlePageChange}
+                        />
+                        {/* {totalBooks > 0 ? (
                             <Pagination>
                                 <Pagination.Prev disabled={page === 1} onClick={() => handlePageChange(page - 1)} />
                                 {[...Array(Math.ceil(totalBooks / limit))].map((_, idx) => (
@@ -235,10 +270,9 @@ const ShopPage = () => {
                                     onClick={() => handlePageChange(page + 1)}
                                 />
                             </Pagination>
-
                         ) : (
                             <></>
-                        )}
+                        )} */}
                     </div>
                 </Col>
             </Row>

@@ -10,9 +10,9 @@ export default function FeaturedBooks() {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                const resRecommended = await fetch("http://127.0.0.1:8003/books/top-rated-recommended");
+                const resRecommended = await fetch("http://127.0.0.1:8001/books/top-rated-recommended");
                 const dataRec = await resRecommended.json();
-                const resPopular = await fetch("http://127.0.0.1:8003/books/top-reviewed-poplular");
+                const resPopular = await fetch("http://127.0.0.1:8001/books/top-reviewed-poplular");
                 const dataPop = await resPopular.json();
                 setRecommendedBooks(dataRec);
                 console.log("check dataRec: ", dataRec);
