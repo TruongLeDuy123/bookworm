@@ -34,7 +34,7 @@ const BookDetailPage = () => {
                 let book = await fetch(`http://127.0.0.1:8001/book-has-discount/${id}`);
                 let res = await book.json();
                 setBook(res);
-                console.log("check detail: ", res);
+                console.log("check detail: ", res); 
 
             } catch (e) {
                 console.log("Failed to fetch book", e);
@@ -49,6 +49,25 @@ const BookDetailPage = () => {
     };
 
     const handleAddNumber = () => {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existing = cart.find((item) => item.book_id === id);
+
+        if (existing) {
+            existing.quantity += quantity;
+        } else {
+            cart.push({ 
+                book_id: id, 
+                quantity: quantity, 
+                book_price: bookData.book_price, 
+                price: book.has_discount ? book.discount_price: bookData.book_price,
+                book_cover_photo: bookData.book_cover_photo,
+                book_title: bookData.book_title,
+                author_name: bookData.author.author_name,
+                has_discount: book.has_discount
+            });
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
         Swal.fire({
             icon: 'success',
             title: 'Thêm sản phẩm vào giỏ hàng thành công!',
@@ -80,7 +99,9 @@ const BookDetailPage = () => {
                             <Col md={3}>
                                 <div>
                                     <img
-                                        src={bookData.book_cover_photo}
+                                        src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                                        // {bookData.book_cover_photo}
+
                                         alt="Book"
                                         className="img-fluid"
                                     />

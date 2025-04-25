@@ -1,78 +1,134 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Card, Form, Table } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Container, Row, Col, Button, Card, Form, Table, Modal } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const ShoppingCart = () => {
     const { id } = useParams()
     const [orderItems, setOrderItems] = useState(null)
     const [cartTotal, setCartTotal] = useState(0)
     const [quantity, setQuantity] = useState(0);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('')
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const data = JSON.parse(localStorage.getItem("cart")) || []
+        setOrderItems(data);
+        console.log("check order: ", data);
+    }, []);
 
     const handlePlaceOrder = async () => {
-        let user_id = localStorage.getItem("user_id")
-        if (!user_id) {
-            alert("Please login to place order")
+        let access_token = localStorage.getItem("access_token")
+        if (!access_token) {
+            setShowLoginModal(true)
             return
-
         }
-        alert()
     }
 
     const increaseQty = (bookId) => {
-        setOrderItems(prevItems =>
-            prevItems.map(item =>
-                item.book_id === bookId
-                    ? { ...item, quantity: item.quantity + 1 }
-                    : item
-            )
-        );
-        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1) * item.quantity) || 0), 0);
-        setCartTotal(cartTotal);
-        setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
+        setOrderItems(prevItems => {
+            const updatedItems = prevItems.map(item => {
+                if (item.book_id === bookId) {
+                    if (item.quantity < 8) {
+                        const quantityCart = localStorage.getItem("quantity")
+                        localStorage.setItem("quantity", +quantityCart + 1)
+                        return { ...item, quantity: item.quantity + 1 };
+                    } else {
+                        // Swal.fire({
+                        //     icon: 'info',
+                        //     title: 'Số lượng tối đa là 8',
+                        //     confirmButtonText: 'OK'
+                        // });
+                    }
+                }
+                return item;
+            });
+            localStorage.setItem("cart", JSON.stringify(updatedItems));
+            window.dispatchEvent(new Event("cartUpdated"))
+            return updatedItems;
+        });
     };
 
     const decreaseQty = (bookId) => {
-        setOrderItems(prevItems =>
-            prevItems.map(item =>
-                item.book_id === bookId && item.quantity > 1
-                    ? { ...item, quantity: item.quantity - 1 }
-                    : item
-            )
-        );
-        let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1) * item.quantity) || 0), 0);
-        setCartTotal(cartTotal);
-        setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+        setOrderItems(prevItems => {
+            const updatedItems = prevItems.map(item => {
+                if (item.book_id === bookId) {
+                    const quantityCart = localStorage.getItem("quantity")
+                    localStorage.setItem("quantity", +quantityCart - 1)
+                    if (item.quantity > 1) return { ...item, quantity: item.quantity - 1 }
+                    return null
+                }
+                return item
+            }).filter(item => item !== null);
+            localStorage.setItem("cart", JSON.stringify(updatedItems));
+            window.dispatchEvent(new Event("cartUpdated"))
+            return updatedItems;
+        });
     };
 
     useEffect(() => {
         if (orderItems) {
-            let cartTotal = orderItems?.reduce((acc, item) => acc + (((item.discount_price - 1) * item.quantity) || 0), 0);
+            const cartTotal = orderItems?.reduce((acc, item) => acc + (item.price * item.quantity), 0)
             setCartTotal(cartTotal);
         }
     }, [orderItems]);
 
+    const handleLogin = async (e) => {
+        if (!email || !password) {
+            setErrors("Please enter both email and password.");
+            return;
+        }
 
-    useEffect(() => {
-        const fetchOrderItems = async () => {
-            try {
-                const res = await fetch(`http://127.0.0.1:8001/cart/${id}`);
-                const data = await res.json();
-                setOrderItems(data);
-                console.log("check order: ", data);
-            } catch (err) {
-                console.error("Failed to fetch books", err);
+        try {
+            const response = await fetch("http://127.0.0.1:8001/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: JSON.stringify(`grant_type=password&username=${email}&password=${password}&scope=&client_id=string&client_secret=string`)
+            });
+
+            const data = await response.json();
+            console.log("check auth: ", data);
+
+
+            if (data.detail) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại!',
+                    confirmButtonText: 'OK'
+                });
+                setEmail('')
+                setPassword('')
             }
-        };
-        fetchOrderItems()
-    }, []);
+            else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng nhập thành công!',
+                    showConfirmButton: true,
+                    timer: 1500,
+                    confirmButtonText: 'OK'
+                });
+                localStorage.setItem("access_token", data.access_token);
+                localStorage.setItem("refresh_token", data.refresh_token);
+                localStorage.setItem("user_id", data.user_id);
+                localStorage.setItem("full_name", data.full_name);
+                window.dispatchEvent(new Event("full_name_updated"));
+                setShowLoginModal(false);
+                navigate('/cart');
+            }
 
-    // useEffect(() => {
 
-    // }, [cartTotal])
+        } catch (err) {
+            alert("err")
+        }
+    };
 
     return (
         <Container className="mt-5" >
-            <h5 className="mb-4 fw-bold">Your cart: {orderItems ? orderItems.length : 0} items</h5>
+            <h5 className="mb-4 fw-bold">Your cart: {Array.isArray(orderItems) ? orderItems.length : 0} items</h5>
             <hr />
             <Row>
                 <Col md={8}>
@@ -86,13 +142,14 @@ const ShoppingCart = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {orderItems && orderItems.map((orderItem) => {
+                            {Array.isArray(orderItems) && orderItems.map((orderItem) => {
                                 return (
                                     <tr>
                                         <td>
                                             <div className="d-flex align-items-center">
                                                 <img
-                                                    src={orderItem.book_cover_photo}
+                                                    src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                                                    // {orderItem.book_cover_photo}
                                                     alt="Book"
                                                     className="me-3"
                                                     style={{ width: '80px', height: '100px' }}
@@ -107,13 +164,19 @@ const ShoppingCart = () => {
                                             <div>
                                                 {orderItem.has_discount ? (
                                                     <>
-                                                        <span className="fw-bold">${Number(orderItem.price - orderItem.discount_price).toFixed(2)}</span>
+                                                        <span className="fw-bold">
+                                                            ${Number(orderItem.price).toFixed(2)}
+                                                        </span>
                                                         <br />
-                                                        <span className="text-decoration-line-through">${Number(orderItem.price).toFixed(2)}</span>
+                                                        <span className="text-decoration-line-through">
+                                                            ${Number(orderItem.book_price).toFixed(2)}
+                                                        </span>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <span className="fw-bold">${Number(orderItem.price).toFixed(2)}</span>
+                                                        <span className="fw-bold">
+                                                            ${Number(orderItem.price).toFixed(2)}
+                                                        </span>
                                                     </>
                                                 )}
                                             </div>
@@ -158,7 +221,47 @@ const ShoppingCart = () => {
                     </Card>
                 </Col>
             </Row>
+
+            <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Sign In</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="formEmail">
+                            <Form.Label>Email address</Form.Label>
+                            <Form.Control
+                                type="email"
+                                placeholder="Enter email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formPassword">
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowLoginModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleLogin}>
+                        Sign In
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </Container>
+
+
     );
 };
 

@@ -38,12 +38,13 @@ const LoginForm = () => {
 
             const data = await response.json();
 
-            if (data.error) {
+            if (data.detail) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Đăng nhập thất bại!',
                     confirmButtonText: 'OK'
                 });
+                setForm({ email: '', password: '' })
             }
             else {
                 Swal.fire({
@@ -58,9 +59,7 @@ const LoginForm = () => {
                 localStorage.setItem("user_id", data.user_id);
                 localStorage.setItem("full_name", data.full_name);
                 window.dispatchEvent(new Event("full_name_updated"));
-                setTimeout(() => {
-                    navigate('/');
-                }, 1500);
+                navigate('/');
             }
 
 

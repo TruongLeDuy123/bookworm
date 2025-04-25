@@ -63,10 +63,6 @@ const Header = () => {
             setCartQuantity(quantity)
         }
         window.addEventListener("cartUpdated", handleCartUpdate)
-
-        // return () => {
-        //     window.removeEventListener("cartUpdated", handleCartUpdate)
-        // }
     }, [])
 
     const handleLogout = () => {
@@ -108,7 +104,7 @@ const Header = () => {
                                 <li><NavLink to="/" className={({ isActive }) => getLinkClass(isActive)}>Home</NavLink></li>
                                 <li><NavLink to="/shop" className={({ isActive }) => getLinkClass(isActive)}>Shop</NavLink></li>
                                 <li><NavLink to="/about" className={({ isActive }) => getLinkClass(isActive)}>About</NavLink></li>
-                                <li><NavLink to={`/cart/${user_id}`} className={({ isActive }) => getLinkClass(isActive)}>Cart <span>({cartQuantity})</span></NavLink></li>
+                                <li><NavLink to={`/cart`} className={({ isActive }) => getLinkClass(isActive)}>Cart <span>({cartQuantity})</span></NavLink></li>
                                 <li>
                                     {user ? (
                                         <div className="relative inline-block" ref={dropdownRef}>
