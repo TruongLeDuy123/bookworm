@@ -25,12 +25,12 @@ const BookCard = ({ book }) => {
                             {book.author_name}
                         </Card.Text>
                         <Card.Text className="mt-auto">
-                            {book.discount_amount > 0 ? (
+                            {book.final_price < book.book_price ? (
                                 <>
                                     <span className="text-muted text-decoration-line-through me-2">
                                         ${Number(book.book_price).toFixed(2)}
                                     </span>
-                                    <strong>${Number(book.discount_price).toFixed(2)}</strong>
+                                    <strong>${Number(book.final_price).toFixed(2)}</strong>
                                 </>
                             ) : (
                                 <strong>${Number(book.book_price).toFixed(2)}</strong>

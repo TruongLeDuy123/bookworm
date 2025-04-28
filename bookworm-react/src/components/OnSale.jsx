@@ -17,7 +17,7 @@ const OnSale = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                const res = await fetch("http://127.0.0.1:8001/books/top-discount");
+                const res = await fetch("http://127.0.0.1:8002/books/top-discount");
                 const data = await res.json();
                 setBooks(data);
                 console.log("check books: ", data);

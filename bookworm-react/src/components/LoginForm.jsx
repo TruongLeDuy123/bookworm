@@ -28,7 +28,7 @@ const LoginForm = () => {
         }
 
         try {
-            const response = await fetch("http://127.0.0.1:8001/login", {
+            const response = await fetch("http://127.0.0.1:8002/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",

@@ -1,13 +1,11 @@
 from pydantic import BaseModel
 from typing import List
 
-class OrderBase(BaseModel):
-    book_title: str
-    author_name: str
-    book_cover_photo: str
-    price: float
+class CartItem(BaseModel):
+    book_id: int
     quantity: int
-    total: float
+    price: float
 
-    class Config:
-        from_attributes = True
+class OrderCreate(BaseModel):
+    user_id: int
+    cart: List[CartItem]

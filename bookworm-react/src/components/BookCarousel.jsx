@@ -3,7 +3,6 @@ import { Row, Col } from 'react-bootstrap';
 import BookCard from './BookCard';
 
 const BookCarousel = ({ group }) => {
-
     return (
         <Row className="g-4 justify-content-center">
             {group && group.length ? (

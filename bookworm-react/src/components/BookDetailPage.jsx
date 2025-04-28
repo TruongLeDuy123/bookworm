@@ -20,7 +20,7 @@ const BookDetailPage = () => {
     useEffect(() => {
         const fetchInfoBook = async () => {
             try {
-                let dataBook = await fetch(`http://127.0.0.1:8001/book/${id}`);
+                let dataBook = await fetch(`http://127.0.0.1:8002/book/${+id}`);
                 let res = await dataBook.json();
                 setBookData(res);
                 console.log("check book data: ", res);
@@ -31,10 +31,10 @@ const BookDetailPage = () => {
         };
         const fetchDetailBook = async () => {
             try {
-                let book = await fetch(`http://127.0.0.1:8001/book-has-discount/${id}`);
+                let book = await fetch(`http://127.0.0.1:8002/book-has-discount/${+id}`);
                 let res = await book.json();
                 setBook(res);
-                console.log("check detail: ", res); 
+                console.log("check detail: ", res);
 
             } catch (e) {
                 console.log("Failed to fetch book", e);
@@ -50,16 +50,24 @@ const BookDetailPage = () => {
 
     const handleAddNumber = () => {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const existing = cart.find((item) => item.book_id === id);
+        const existing = cart.find((item) => item.book_id === +id);
 
         if (existing) {
+            if (existing.quantity + quantity > 8) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Số lượng tối đa là 8',
+                    confirmButtonText: 'OK'
+                });
+                return
+            }
             existing.quantity += quantity;
         } else {
-            cart.push({ 
-                book_id: id, 
-                quantity: quantity, 
-                book_price: bookData.book_price, 
-                price: book.has_discount ? book.discount_price: bookData.book_price,
+            cart.push({
+                book_id: +id,
+                quantity: quantity,
+                book_price: bookData.book_price,
+                price: book.has_discount ? book.discount_price : bookData.book_price,
                 book_cover_photo: bookData.book_cover_photo,
                 book_title: bookData.book_title,
                 author_name: bookData.author.author_name,

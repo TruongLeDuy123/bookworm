@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Card, Form, Table, Modal } from 'react-bootstrap';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 const ShoppingCart = () => {
@@ -16,8 +16,55 @@ const ShoppingCart = () => {
     useEffect(() => {
         const data = JSON.parse(localStorage.getItem("cart")) || []
         setOrderItems(data);
-        console.log("check order: ", data);
+        // console.log("check order: ", data);
     }, []);
+
+    const checkout = async (cart, userId) => {
+        const res = await fetch(`http://127.0.0.1:8002/orders`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cart, user_id: userId })
+        });
+        const data = await res.json();
+        console.log("check data order: ", data);
+
+
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đặt hàng thành công!',
+                text: 'Bạn sẽ được chuyển về trang chủ trong 10 giây hoặc nhấn OK để chuyển ngay.',
+                confirmButtonText: 'OK',
+                timer: 10000,
+                timerProgressBar: true,
+            }).then(() => {
+                navigate('/');
+            });
+
+            localStorage.removeItem("cart");
+            localStorage.removeItem("quantity");
+            setOrderItems([]);
+            window.dispatchEvent(new Event("cartUpdated"));
+        } else {
+            if (data.unavailable_books && data.unavailable_books.length > 0) {
+                Swal.fire({
+                    icon: 'error',
+                    text: `Một số sách không còn tồn tại: ${data.unavailable_books.join(", ")}`,
+                    confirmButtonText: 'OK',
+                    timer: 10000,
+                    timerProgressBar: true,
+                }).then(() => {
+                    const updatedCart = cart.filter(item => !data.unavailable_books.includes(item.book_id));
+                    // console.log("check updatecard: ", data, updatedCart);
+                    setOrderItems(updatedCart);
+                    const updateQuantity = updatedCart.reduce((total, item) => total + item.quantity, 0)
+                    localStorage.setItem("cart", JSON.stringify(updatedCart));
+                    localStorage.setItem("quantity", updateQuantity)
+                    window.dispatchEvent(new Event("cartUpdated"));
+                })
+            }
+        }
+    };
 
     const handlePlaceOrder = async () => {
         let access_token = localStorage.getItem("access_token")
@@ -25,6 +72,18 @@ const ShoppingCart = () => {
             setShowLoginModal(true)
             return
         }
+
+        const userId = localStorage.getItem("user_id");
+        if (!orderItems || orderItems.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Giỏ hàng trống!',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        await checkout(orderItems, userId);
     }
 
     const increaseQty = (bookId) => {
@@ -82,7 +141,7 @@ const ShoppingCart = () => {
         }
 
         try {
-            const response = await fetch("http://127.0.0.1:8001/login", {
+            const response = await fetch("http://127.0.0.1:8002/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -128,7 +187,7 @@ const ShoppingCart = () => {
 
     return (
         <Container className="mt-5" >
-            <h5 className="mb-4 fw-bold">Your cart: {Array.isArray(orderItems) ? orderItems.length : 0} items</h5>
+            <h5 className="mb-4 fw-bold">Your cart: {orderItems ? orderItems.length : 0} items</h5>
             <hr />
             <Row>
                 <Col md={8}>
@@ -142,23 +201,25 @@ const ShoppingCart = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {Array.isArray(orderItems) && orderItems.map((orderItem) => {
+                            {orderItems && orderItems.map((orderItem) => {
                                 return (
                                     <tr>
                                         <td>
-                                            <div className="d-flex align-items-center">
-                                                <img
-                                                    src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
-                                                    // {orderItem.book_cover_photo}
-                                                    alt="Book"
-                                                    className="me-3"
-                                                    style={{ width: '80px', height: '100px' }}
-                                                />
-                                                <div>
-                                                    <strong>{orderItem.book_title}</strong>
-                                                    <p className="mb-0">{orderItem.author_name}</p>
+                                            <Link to={`/book/${orderItem.book_id}`} className="text-decoration-none text-dark">
+                                                <div className="d-flex align-items-center">
+                                                    <img
+                                                        src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                                                        // {orderItem.book_cover_photo}
+                                                        alt="Book"
+                                                        className="me-3"
+                                                        style={{ width: '80px', height: '100px' }}
+                                                    />
+                                                    <div>
+                                                        <strong>{orderItem.book_title}</strong>
+                                                        <p className="mb-0">{orderItem.author_name}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </Link>
                                         </td>
                                         <td>
                                             <div>
@@ -192,7 +253,6 @@ const ShoppingCart = () => {
                                     </tr>
                                 )
                             })}
-
                         </tbody>
                     </Table>
                 </Col>
@@ -259,7 +319,7 @@ const ShoppingCart = () => {
                 </Modal.Footer>
             </Modal>
 
-        </Container>
+        </Container >
 
 
     );

@@ -26,8 +26,8 @@ const ShopPage = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                let url = `http://127.0.0.1:8001/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
-                let url_count = `http://127.0.0.1:8001/books/count?`
+                let url = `http://127.0.0.1:8002/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
+                let url_count = `http://127.0.0.1:8002/books/count?`
 
                 if (selectIdCategory !== null) {
                     url += `&category_id=${selectIdCategory}`;
@@ -61,16 +61,16 @@ const ShopPage = () => {
 
     useEffect(() => {
         let arrayFilter = []
-        if (categoryFilter)arrayFilter.push(categoryFilter)
-        if (authorFilter)arrayFilter.push(authorFilter)
-        if (starFilter)arrayFilter.push(starFilter)
+        if (categoryFilter) arrayFilter.push(categoryFilter)
+        if (authorFilter) arrayFilter.push(authorFilter)
+        if (starFilter) arrayFilter.push(starFilter)
         setNameFilter(arrayFilter.join('-'))
     }, [categoryFilter, authorFilter, starFilter])
 
     useEffect(() => {
         const fetchAllCategoriesName = async () => {
             try {
-                let allCategoriesName = await fetch(`http://127.0.0.1:8001/categories`);
+                let allCategoriesName = await fetch(`http://127.0.0.1:8002/categories`);
                 let res = await allCategoriesName.json()
                 setCategoriesName(res)
             } catch (e) {
@@ -80,7 +80,7 @@ const ShopPage = () => {
 
         const fetchAllAuthorsName = async () => {
             try {
-                let allAuthorsName = await fetch(`http://127.0.0.1:8001/authors`);
+                let allAuthorsName = await fetch(`http://127.0.0.1:8002/authors`);
                 let res = await allAuthorsName.json()
                 setAuthorsName(res)
             } catch (e) {
