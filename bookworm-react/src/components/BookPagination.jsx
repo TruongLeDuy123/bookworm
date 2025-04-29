@@ -1,9 +1,8 @@
 import { Pagination } from 'react-bootstrap';
 
-const BookPagination = ({ currentPage, totalBooks, limit, onPageChange }) => {
-    const totalPages = Math.ceil(totalBooks / limit);
-
-    if (totalBooks === 0) return null;
+const BookPagination = ({ currentPage, total, limit, onPageChange }) => {
+    const totalPages = Math.ceil(total / limit);
+    if (total === 0) return null;
 
     const getVisiblePages = () => {
         const pages = [];
@@ -49,7 +48,7 @@ const BookPagination = ({ currentPage, totalBooks, limit, onPageChange }) => {
                     <Pagination.Ellipsis key={`ellipsis-${idx}`} />
                 ) : (
                     <Pagination.Item
-                        key={`page-${page}`} // Thêm prefix để đảm bảo key duy nhất
+                        key={`page-${page}`} 
                         active={currentPage === page}
                         onClick={() => onPageChange(page)}
                     >

@@ -12,6 +12,7 @@ const BookDetailPage = () => {
     const [totalReviews, setTotalReviews] = useState(0)
     const [avgStar, setAvgStar] = useState(0)
     const [arrayStar, setArrayStar] = useState([0, 0, 0, 0, 0])
+    
     const increaseQty = () => setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
     const decreaseQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
@@ -19,11 +20,28 @@ const BookDetailPage = () => {
     const [detail, setDetail] = useState('')
     const [rating, setRating] = useState("1")
 
+    const [arrayReview, setArrayReview] = useState([])
+
     const [currentPage, setCurrentPage] = useState(1);
-    // const totalReviews = 3134;
+    const [limit, setLimit] = useState(5);
+
     const reviewsPerPage = 12;
 
     const totalPages = Math.ceil(totalReviews / reviewsPerPage);
+
+    useEffect(() => {
+        const fetchAllReviews = async () => {
+            try {
+                // console.log("CHECK PAGINATION: ", currentPage, limit);
+                let url = `http://127.0.0.1:8002/reviews/pagination/?skip=${(currentPage - 1) * limit}&limit=${limit}`
+                let res = await (await fetch(url)).json();
+                setArrayReview(res.reviews)
+            } catch (e) {
+                console.log("Failed to fetch all reviews", e);
+            }
+        }
+        fetchAllReviews()
+    }, [currentPage, limit])
 
     useEffect(() => {
         const fetchReview = async () => {
@@ -33,7 +51,7 @@ const BookDetailPage = () => {
                 setTotalReviews(res.total_reviews);
                 setAvgStar(res.average_rating)
                 setArrayStar([res.review_counts.one_star, res.review_counts.two_star, res.review_counts.three_star, res.review_counts.four_star, res.review_counts.five_star])
-                console.log("check review: ", arrayStar);
+                // console.log("check total reviews: ", totalReviews);
             } catch (e) {
                 console.log("Failed to fetch review", e);
             }
@@ -47,29 +65,34 @@ const BookDetailPage = () => {
                 let dataBook = await fetch(`http://127.0.0.1:8002/book/${+id}`);
                 let res = await dataBook.json();
                 setBookData(res);
-                console.log("check book data: ", res);
+                // console.log("check book data: ", res);
 
             } catch (e) {
                 console.log("Failed to fetch book info", e);
             }
         };
+
         const fetchDetailBook = async () => {
             try {
                 let book = await fetch(`http://127.0.0.1:8002/book-has-discount/${+id}`);
                 let res = await book.json();
                 setBook(res);
-                console.log("check detail: ", res);
+                // console.log("check detail: ", res);
 
             } catch (e) {
                 console.log("Failed to fetch book", e);
             }
         };
-        fetchInfoBook();
+        fetchInfoBook()
         fetchDetailBook()
+        // console.log("check pagi: ", currentPage, totalReviews, limit);
+
     }, []);
 
     const handlePageChange = (page) => {
+        // console.log("CHECK PAGE", page);
         setCurrentPage(page);
+        // fetchAllReviews((page - 1) * limit)
     };
 
     const handleAddNumber = () => {
@@ -131,9 +154,7 @@ const BookDetailPage = () => {
 
     const handleRating = (e) => {
         const value = e.target.value
-        console.log(value)
         setRating(value)
-
     }
 
     const handleSubmit = async (e) => {
@@ -160,226 +181,225 @@ const BookDetailPage = () => {
                 showConfirmButton: true,
                 timer: 5000,
                 confirmButtonText: 'OK'
-            });
-            
+            }).then(() => {
+                fetchAllReviews();
+            })
         } catch (err) {
             alert("err")
         }
     }
 
-        // useEffect(() => {
+    return (
+        <Container className="mt-5">
+            <h5 className="mb-4 fw-bold">{bookData.category.category_name}</h5>
+            <hr />
+            <Row className="gy-4">
+                <Col xs={12} md={8}>
+                    <Card className="border h-100">
+                        <Row className="g-0">
+                            {/* Book Image */}
+                            <Col xs={12} md={3} className="d-flex flex-column align-items-center p-3">
+                                <img
+                                    src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                                    alt="Book"
+                                    className="img-fluid w-100 mb-2"
+                                    style={{ maxWidth: '150px', objectFit: 'cover' }}
+                                />
+                                <Card.Text className="text-muted text-center">
+                                    By <span className="fw-bold">{bookData.author.author_name}</span>
+                                </Card.Text>
+                            </Col>
 
-        // }, [])
+                            {/* Book Info */}
+                            <Col xs={12} md={9}>
+                                <Card.Body>
+                                    <Card.Title className="fw-bold">{bookData.book_title}</Card.Title>
+                                    <Card.Text className="mb-2">{bookData.book_summary}</Card.Text>
+                                </Card.Body>
+                            </Col>
+                        </Row>
+                    </Card>
+                </Col>
 
-        return (
-            <Container className="mt-5">
-                <h5 className="mb-4 fw-bold">{bookData.category.category_name}</h5>
-                <hr />
-                <Row className="gy-4">
-                    <Col xs={12} md={8}>
-                        <Card className="border h-100">
-                            <Row className="g-0">
-                                {/* Book Image */}
-                                <Col xs={12} md={3} className="d-flex flex-column align-items-center p-3">
-                                    <img
-                                        src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
-                                        alt="Book"
-                                        className="img-fluid w-100 mb-2"
-                                        style={{ maxWidth: '150px', objectFit: 'cover' }}
-                                    />
-                                    <Card.Text className="text-muted text-center">
-                                        By <span className="fw-bold">{bookData.author.author_name}</span>
-                                    </Card.Text>
-                                </Col>
+                {/* Right Side: Price & Quantity */}
+                <Col xs={12} md={4}>
+                    <Card className="h-100 pb-5">
+                        {/* Giá */}
+                        <div className="bg-light border rounded p-3 mb-3 text-center">
+                            <h6 className="mb-0">
+                                {book.has_discount ? (
+                                    <>
+                                        <span className="text-muted text-decoration-line-through me-2">${Number(bookData.book_price).toFixed(2)}</span>
+                                        <strong className="text-danger">${Number(book.discount_price).toFixed(2)}</strong>
+                                    </>
+                                ) : (
+                                    <strong>${Number(bookData.book_price).toFixed(2)}</strong>
+                                )}
+                            </h6>
+                        </div>
 
-                                {/* Book Info */}
-                                <Col xs={12} md={9}>
-                                    <Card.Body>
-                                        <Card.Title className="fw-bold">{bookData.book_title}</Card.Title>
-                                        <Card.Text className="mb-2">{bookData.book_summary}</Card.Text>
-                                    </Card.Body>
-                                </Col>
-                            </Row>
-                        </Card>
-                    </Col>
-
-                    {/* Right Side: Price & Quantity */}
-                    <Col xs={12} md={4}>
-                        <Card className="h-100 pb-5">
-                            {/* Giá */}
-                            <div className="bg-light border rounded p-3 mb-3 text-center">
-                                <h6 className="mb-0">
-                                    {book.has_discount ? (
-                                        <>
-                                            <span className="text-muted text-decoration-line-through me-2">${Number(bookData.book_price).toFixed(2)}</span>
-                                            <strong className="text-danger">${Number(book.discount_price).toFixed(2)}</strong>
-                                        </>
-                                    ) : (
-                                        <strong>${Number(bookData.book_price).toFixed(2)}</strong>
-                                    )}
-                                </h6>
+                        {/* Quantity */}
+                        <div className="mb-3 px-3">
+                            <label className="form-label fw-bold">Quantity</label>
+                            <div className="d-flex align-items-center justify-content-between border rounded">
+                                <Button variant="light" onClick={decreaseQty}>−</Button>
+                                <div className="px-3">{quantity}</div>
+                                <Button variant="light" onClick={increaseQty}>+</Button>
                             </div>
+                        </div>
 
-                            {/* Quantity */}
-                            <div className="mb-3 px-3">
-                                <label className="form-label fw-bold">Quantity</label>
-                                <div className="d-flex align-items-center justify-content-between border rounded">
-                                    <Button variant="light" onClick={decreaseQty}>−</Button>
-                                    <div className="px-3">{quantity}</div>
-                                    <Button variant="light" onClick={increaseQty}>+</Button>
-                                </div>
+                        {/* Add to cart */}
+                        <div className="px-3">
+                            <Button variant="secondary" className="w-100 mt-2" onClick={handleAddNumber}>
+                                Add to cart
+                            </Button>
+                        </div>
+                    </Card>
+                </Col>
+            </Row>
+
+            <br />
+
+            <Row className="gy-4 mt-4">
+                <Col xs={12} md={8}>
+                    <Card className="p-4 border h-100">
+                        <h5 className="fw-bold mb-2">Customer Reviews <span className="fw-normal fs-6">(Filtered by 5 star)</span></h5>
+
+                        <div className="d-flex align-items-center mb-3">
+                            <h3 className="fw-bold mb-0 me-2">{avgStar.toFixed(1)}</h3>
+                            <span>Star</span>
+                        </div>
+
+                        <div className="mb-3 text-decoration-underline" style={{ cursor: "pointer" }}>
+                            <span className="me-4 fw-bold">({totalReviews})</span>
+                            <span className="me-2">5 star ({arrayStar[4]}) |</span>
+                            <span className="me-2">4 star ({arrayStar[3]}) |</span>
+                            <span className="me-2">3 star ({arrayStar[2]}) |</span>
+                            <span className="me-2">2 star ({arrayStar[1]}) |</span>
+                            <span className="">1 star ({arrayStar[0]})</span>
+                        </div>
+
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                Showing {(currentPage - 1) * reviewsPerPage + 1}–{Math.min(currentPage * reviewsPerPage, totalReviews)} of {totalReviews} reviews
                             </div>
+                            <div className="d-flex gap-2">
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="secondary" size="sm">
+                                        Sort by on sale
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item>Sort by date: newest to oldest</Dropdown.Item>
+                                        <Dropdown.Item>Sort by date: oldest to newest</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
 
-                            {/* Add to cart */}
-                            <div className="px-3">
-                                <Button variant="secondary" className="w-100 mt-2" onClick={handleAddNumber}>
-                                    Add to cart
-                                </Button>
+                                <Dropdown>
+                                    <Dropdown.Toggle variant="secondary" size="sm">
+                                        Show 20
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item>Show 12</Dropdown.Item>
+                                        <Dropdown.Item>Show 20</Dropdown.Item>
+                                        <Dropdown.Item>Show 50</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
                             </div>
-                        </Card>
-                    </Col>
-                </Row>
-
-                <br />
-
-                <Row className="gy-4 mt-4">
-                    <Col xs={12} md={8}>
-                        <Card className="p-4 border h-100">
-                            <h5 className="fw-bold mb-2">Customer Reviews <span className="fw-normal">(Filtered by 5 star)</span></h5>
-
-                            <div className="d-flex align-items-center mb-3">
-                                <h3 className="fw-bold mb-0 me-2">{avgStar}</h3>
-                                <span>Star</span>
-                            </div>
-
-                            <div className="mb-3">
-                                <span className="me-2 text-primary" style={{ cursor: "pointer" }}>({totalReviews})</span>
-                                <span className="me-2 text-primary">5 star ({arrayStar[4]})</span>
-                                <span className="me-2 text-primary">4 star ({arrayStar[3]})</span>
-                                <span className="me-2 text-primary">3 star ({arrayStar[2]})</span>
-                                <span className="me-2 text-primary">2 star ({arrayStar[1]})</span>
-                                <span className="text-primary">1 star ({arrayStar[0]})</span>
-                            </div>
-
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    Showing {(currentPage - 1) * reviewsPerPage + 1}–{Math.min(currentPage * reviewsPerPage, totalReviews)} of {totalReviews} reviews
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <Dropdown>
-                                        <Dropdown.Toggle variant="secondary" size="sm">
-                                            Sort by on sale
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu>
-                                            <Dropdown.Item>Sort by date: newest to oldest</Dropdown.Item>
-                                            <Dropdown.Item>Sort by date: oldest to newest</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-
-                                    <Dropdown>
-                                        <Dropdown.Toggle variant="secondary" size="sm">
-                                            Show 20
-                                        </Dropdown.Toggle>
-                                        <Dropdown.Menu>
-                                            <Dropdown.Item>Show 12</Dropdown.Item>
-                                            <Dropdown.Item>Show 20</Dropdown.Item>
-                                            <Dropdown.Item>Show 50</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                </div>
-                            </div>
-
-                            {/* Sample Review Item */}
-                            <div className="mb-4">
-                                <h6 className="fw-bold mb-1">Review Title <span className="fw-normal">| 5 stars</span></h6>
-                                <p className="mb-1 text-muted">Review content. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                <small className="text-muted">April 12, 2021</small>
-                            </div>
-
-                            <hr />
-
-                            <div className="mb-4">
-                                <h6 className="fw-bold mb-1">Amazing Story! You will LOVE it <span className="fw-normal">| 5 stars</span></h6>
-                                <p className="mb-1 text-muted">Such an incredibly complex story! I had to buy it because there was a waiting list of 30+ at the local library for this book. Thrilled that I made the purchase</p>
-                                <small className="text-muted">April 12, 2021</small>
-                            </div>
-
-                            <hr />
-
-                            {/* Pagination */}
-                            {/* <div className="d-flex justify-content-center mt-5">
+                        </div>
+                        <br />
+                        {/* Sample Review Item */}
+                        {
+                            arrayReview && arrayReview.length > 0 ? (
+                                arrayReview.map((review) => {
+                                    return (
+                                        <div className="">
+                                            <h6 className="fw-bold mb-3 fs-5">{review.review_title} <span className="fw-normal fs-6">| {review.rating_start} stars</span></h6>
+                                            <p className="mb-1">{review.review_details}</p>
+                                            <small className="">
+                                                {new Date(review.review_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                            </small>
+                                            <hr />
+                                        </div>
+                                    )
+                                })
+                            ) : (
+                                <p>No reviews</p>
+                            )
+                        }
+                        {/* Pagination */}
+                        <div className="d-flex justify-content-center mt-5">
                             <BookPagination
-                                currentPage={page}
-                                totalBooks={totalBooks}
+                                currentPage={currentPage}
+                                total={totalReviews}
                                 limit={limit}
                                 onPageChange={handlePageChange}
                             />
-                        </div> */}
-                            <Pagination className="justify-content-center">
-                                <Pagination.Prev />
-                                {Array.from({ length: totalPages }, (_, i) => (
-                                    <Pagination.Item
-                                        key={i + 1}
-                                        active={i + 1 === currentPage}
-                                        onClick={() => handlePageChange(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </Pagination.Item>
-                                )).slice(0, 5)}
-                                <Pagination.Next />
-                            </Pagination>
-                        </Card>
-                    </Col>
+                        </div>
+                        {/* <Pagination className="justify-content-center">
+                            <Pagination.Prev />
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <Pagination.Item
+                                    key={i + 1}
+                                    active={i + 1 === currentPage}
+                                    onClick={() => handlePageChange(i + 1)}
+                                >
+                                    {i + 1}
+                                </Pagination.Item>
+                            )).slice(0, 5)}
+                            <Pagination.Next />
+                        </Pagination> */}
+                    </Card>
+                </Col>
 
-                    <Col xs={12} md={4}>
-                        <Card className="border">
-                            <h5 className="fw-bold ps-4 pt-4">Write a Review</h5>
+                <Col xs={12} md={4}>
+                    <Card className="border">
+                        <h5 className="fw-bold ps-4 pt-4">Write a Review</h5>
+                        <hr className="w-100" />
+
+                        <Form className='pb-4' onSubmit={handleSubmit}>
+                            <Form.Group className="px-4 mb-3">
+                                <Form.Label>Add a title</Form.Label>
+                                <Form.Control type="text" placeholder="Enter review title" required maxLength={120}
+                                    onChange={handleTitle}
+                                    value={title}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="px-4 mb-3">
+                                <Form.Label>Details please! Your review helps other shoppers.</Form.Label>
+                                <Form.Control as="textarea" rows={3} placeholder="Write your review here..."
+                                    onChange={handleDetail}
+                                    value={detail}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="px-4 mb-4">
+                                <Form.Label>Select a rating star</Form.Label>
+                                <Form.Select value={rating} onChange={handleRating}>
+                                    <option value="1">1 Star</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="5">5 Stars</option>
+                                </Form.Select>
+                            </Form.Group>
+
                             <hr className="w-100" />
+                            <div className=' px-5'>
+                                <Button
+                                    variant="secondary"
+                                    className="w-100 fw-bold"
+                                    type="submit"
+                                >
+                                    Submit Review
+                                </Button>
+                            </div>
+                        </Form>
+                    </Card>
+                </Col>
+            </Row>
+        </Container>
+    );
+};
 
-                            <Form className='pb-4' onSubmit={handleSubmit}>
-                                <Form.Group className="px-4 mb-3">
-                                    <Form.Label>Add a title</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter review title" required maxLength={120}
-                                        onChange={handleTitle}
-                                        value={title}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="px-4 mb-3">
-                                    <Form.Label>Details please! Your review helps other shoppers.</Form.Label>
-                                    <Form.Control as="textarea" rows={3} placeholder="Write your review here..."
-                                        onChange={handleDetail}
-                                        value={detail}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="px-4 mb-4">
-                                    <Form.Label>Select a rating star</Form.Label>
-                                    <Form.Select value={rating} onChange={handleRating}>
-                                        <option value="1">1 Star</option>
-                                        <option value="2">2 Stars</option>
-                                        <option value="3">3 Stars</option>
-                                        <option value="4">4 Stars</option>
-                                        <option value="5">5 Stars</option>
-                                    </Form.Select>
-                                </Form.Group>
-
-                                <hr className="w-100" />
-                                <div className=' px-5'>
-                                    <Button
-                                        variant="secondary"
-                                        className="w-100 fw-bold"
-                                        type="submit"
-                                    >
-                                        Submit Review
-                                    </Button>
-                                </div>
-                            </Form>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-        );
-    };
-
-    export default BookDetailPage;
+export default BookDetailPage;

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case
+from sqlalchemy import func, case, asc, desc
 from app.database import get_db
 from app.models.all import Review
 from app.schemas.review import ReviewCreate
 from datetime import datetime
+from typing import List, Optional
 
 router = APIRouter()
 
@@ -66,3 +67,42 @@ async def create_reviews(review_data: ReviewCreate, db: Session = Depends(get_db
     db.commit()
     db.refresh(new_review)
     return new_review
+
+@router.get("/reviews/pagination")
+def get_reviews(
+    db: Session = Depends(get_db),
+    skip: int = Query(0),
+    limit: int = Query(5),
+    sort: str = Query("desc", regex="^(asc|desc)$"),
+    rating: Optional[int] = Query(None, ge=1, le=5)
+):
+    query = db.query(Review)
+
+    # Filtering by rating_start (1-5)
+    if rating:
+        query = query.filter(Review.rating_start == rating)
+
+    # Sorting by review_date
+    if sort == "asc":
+        query = query.order_by(asc(Review.review_date))
+    else:
+        query = query.order_by(desc(Review.review_date))
+
+    # Pagination
+    total = query.count()
+    reviews = query.offset(skip).limit(limit).all()
+
+    return {
+        "total": total,
+        "reviews": [
+            {
+                "id": r.id,
+                "book_id": r.book_id,
+                "review_title": r.review_title,
+                "review_details": r.review_details,
+                "review_date": r.review_date.strftime("%Y-%m-%d %H:%M:%S"),
+                "rating_start": r.rating_start
+            }
+            for r in reviews
+        ]
+    }

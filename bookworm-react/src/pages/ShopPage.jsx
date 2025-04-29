@@ -28,7 +28,7 @@ const ShopPage = () => {
             try {
                 let url = `http://127.0.0.1:8002/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
                 let url_count = `http://127.0.0.1:8002/books/count?`;
-
+                
                 if (selectIdCategory !== null) {
                     url += `&category_id=${selectIdCategory}`;
                     url_count += `category_id=${selectIdCategory}`;
@@ -154,14 +154,14 @@ const ShopPage = () => {
                         nameFilter={nameFilter}
                     />
 
-                    <div className="mt-3">
+                    <div className="mt-5">
                         <BookCarousel group={books} />
                     </div>
 
                     <div className="d-flex justify-content-center mt-5">
                         <BookPagination
                             currentPage={page}
-                            totalBooks={totalBooks}
+                            total={totalBooks}
                             limit={limit}
                             onPageChange={handlePageChange}
                         />

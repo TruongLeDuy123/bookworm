@@ -2,8 +2,8 @@ import React from 'react';
 
 const BookHeader = ({ page, limit, totalBooks, handleSortChange, handleLimitChange }) => {
     return (
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <p className="text-sm text-gray-700">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-4">
+            <p className="text-sm text-gray-700 mt-1">
                 Showing {totalBooks == 0 ? 0: 1 + (page - 1) * limit}-{Math.min(page * limit, totalBooks)} of {totalBooks} books
             </p>
 
