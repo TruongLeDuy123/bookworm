@@ -381,7 +381,7 @@ def pagination(
         final_price = discount_price if discount_price is not None else price
 
         result.append({
-            "id": book_id,
+            "book_id": book_id,
             "book_title": title,
             "book_price": float(price),
             "discount_price": float(discount_price) if discount_price is not None else None,
@@ -417,7 +417,6 @@ def count_books(category_id: Optional[int] = Query(None), author_id: Optional[in
             .subquery()
         )
 
-        # Tính điểm trung bình
         total_score = (
             1 * subquery.c.count_1 +
             2 * subquery.c.count_2 +
