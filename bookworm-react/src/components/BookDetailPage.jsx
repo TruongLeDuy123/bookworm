@@ -10,9 +10,10 @@ const BookDetailPage = () => {
     const [bookData, setBookData] = useState(null);
     const [book, setBook] = useState(null);
     const [totalReviews, setTotalReviews] = useState(0)
+    const [totalReviewsByStar, setTotalReviewsByStar] = useState(0)
     const [avgStar, setAvgStar] = useState(0)
     const [arrayStar, setArrayStar] = useState([0, 0, 0, 0, 0])
-    
+
     const increaseQty = () => setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
     const decreaseQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
@@ -25,37 +26,45 @@ const BookDetailPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(5);
 
-    const reviewsPerPage = 12;
+    const [sortOption, setSortOption] = useState("desc");
 
-    const totalPages = Math.ceil(totalReviews / reviewsPerPage);
+    const [starFilter, setStarFilter] = useState("");
+    const [selectedStar, setSelectedStar] = useState(null);
+
+    const [checkTotal, setCheckTotal] = useState(true);
+
+
+    const fetchAllReviews = async () => {
+        try {
+            // console.log("CHECK PAGINATION: ", currentPage, limit);
+            let url = `http://127.0.0.1:8002/reviews/pagination/?skip=${(currentPage - 1) * limit}&limit=${limit}&sort=${sortOption}`
+            if (selectedStar !== null) url += `&rating=${selectedStar}`
+            let res = await (await fetch(url)).json();
+            setArrayReview(res.reviews)
+            // setTotalReviews(res.total)
+            setTotalReviewsByStar(res.total)
+        } catch (e) {
+            console.log("Failed to fetch all reviews", e);
+        }
+    }
 
     useEffect(() => {
-        const fetchAllReviews = async () => {
-            try {
-                // console.log("CHECK PAGINATION: ", currentPage, limit);
-                let url = `http://127.0.0.1:8002/reviews/pagination/?skip=${(currentPage - 1) * limit}&limit=${limit}`
-                let res = await (await fetch(url)).json();
-                setArrayReview(res.reviews)
-            } catch (e) {
-                console.log("Failed to fetch all reviews", e);
-            }
-        }
         fetchAllReviews()
-    }, [currentPage, limit])
+    }, [currentPage, limit, selectedStar, sortOption])
+
+    const fetchReview = async () => {
+        try {
+            let dataReview = await fetch(`http://127.0.0.1:8002/reviews/statistics`);
+            let res = await dataReview.json();
+            setTotalReviews(res.total_reviews);
+            setAvgStar(res.average_rating)
+            setArrayStar([res.review_counts.one_star, res.review_counts.two_star, res.review_counts.three_star, res.review_counts.four_star, res.review_counts.five_star])
+        } catch (e) {
+            console.log("Failed to fetch review", e);
+        }
+    }
 
     useEffect(() => {
-        const fetchReview = async () => {
-            try {
-                let dataReview = await fetch(`http://127.0.0.1:8002/reviews/statistics`);
-                let res = await dataReview.json();
-                setTotalReviews(res.total_reviews);
-                setAvgStar(res.average_rating)
-                setArrayStar([res.review_counts.one_star, res.review_counts.two_star, res.review_counts.three_star, res.review_counts.four_star, res.review_counts.five_star])
-                // console.log("check total reviews: ", totalReviews);
-            } catch (e) {
-                console.log("Failed to fetch review", e);
-            }
-        }
         fetchReview()
     }, [])
 
@@ -78,7 +87,6 @@ const BookDetailPage = () => {
                 let res = await book.json();
                 setBook(res);
                 // console.log("check detail: ", res);
-
             } catch (e) {
                 console.log("Failed to fetch book", e);
             }
@@ -90,9 +98,7 @@ const BookDetailPage = () => {
     }, []);
 
     const handlePageChange = (page) => {
-        // console.log("CHECK PAGE", page);
         setCurrentPage(page);
-        // fetchAllReviews((page - 1) * limit)
     };
 
     const handleAddNumber = () => {
@@ -157,6 +163,28 @@ const BookDetailPage = () => {
         setRating(value)
     }
 
+    const handleSelectedStar = (item) => {
+        setCheckTotal(false)
+        setSelectedStar(item);
+        setCurrentPage(1);
+        setStarFilter(item + " star");
+    };
+
+    const handleLimitChange = (e) => {
+        setLimit(Number(e.target.value));
+        setCurrentPage(1);
+    };
+
+    const handleSortChange = (e) => {
+        setSortOption(e.target.value);
+        setCurrentPage(1);
+    };
+
+    const handleTotalReviews = () => {
+        setCheckTotal(true)
+        setSelectedStar(null);
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
@@ -182,7 +210,11 @@ const BookDetailPage = () => {
                 timer: 5000,
                 confirmButtonText: 'OK'
             }).then(() => {
-                fetchAllReviews();
+                fetchAllReviews()
+                fetchReview()
+                setTitle('')
+                setDetail('')
+                setRating('1')
             })
         } catch (err) {
             alert("err")
@@ -263,47 +295,54 @@ const BookDetailPage = () => {
             <Row className="gy-4 mt-4">
                 <Col xs={12} md={8}>
                     <Card className="p-4 border h-100">
-                        <h5 className="fw-bold mb-2">Customer Reviews <span className="fw-normal fs-6">(Filtered by 5 star)</span></h5>
+                        <h5 className="fw-bold mb-2">Customer Reviews <span className="fw-normal fs-6">(Filtered by {checkTotal ? 'all' : starFilter})</span></h5>
 
                         <div className="d-flex align-items-center mb-3">
-                            <h3 className="fw-bold mb-0 me-2">{avgStar.toFixed(1)}</h3>
-                            <span>Star</span>
+                            <h3 className="fw-bold mb-0 me-2">{avgStar.toFixed(1)} Star</h3>
                         </div>
 
                         <div className="mb-3 text-decoration-underline" style={{ cursor: "pointer" }}>
-                            <span className="me-4 fw-bold">({totalReviews})</span>
-                            <span className="me-2">5 star ({arrayStar[4]}) |</span>
-                            <span className="me-2">4 star ({arrayStar[3]}) |</span>
-                            <span className="me-2">3 star ({arrayStar[2]}) |</span>
-                            <span className="me-2">2 star ({arrayStar[1]}) |</span>
-                            <span className="">1 star ({arrayStar[0]})</span>
+                            <span
+                                className={`me-4 ${checkTotal ? 'fw-bold' : ''}`}
+                                onClick={() => handleTotalReviews()}
+                            >
+                                ({totalReviews})
+                            </span>
+                            {
+                                [5, 4, 3, 2, 1].map((item) => (
+                                    <span
+                                        key={item}
+                                        className={`me-2 ${selectedStar === item ? 'fw-bold' : ''}`}
+                                        onClick={() => handleSelectedStar(item)}
+                                    >
+                                        {item} star ({arrayStar[item - 1]}) {item != 1 ? '| ' : ''}
+                                    </span>
+                                ))
+                            }
                         </div>
 
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <div>
-                                Showing {(currentPage - 1) * reviewsPerPage + 1}–{Math.min(currentPage * reviewsPerPage, totalReviews)} of {totalReviews} reviews
+                                Showing {totalReviewsByStar == 0 ? 0 : 1 + (currentPage - 1) * limit}–{Math.min(currentPage * limit, totalReviewsByStar)} of {totalReviewsByStar} reviews
                             </div>
-                            <div className="d-flex gap-2">
-                                <Dropdown>
-                                    <Dropdown.Toggle variant="secondary" size="sm">
-                                        Sort by on sale
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu>
-                                        <Dropdown.Item>Sort by date: newest to oldest</Dropdown.Item>
-                                        <Dropdown.Item>Sort by date: oldest to newest</Dropdown.Item>
-                                    </Dropdown.Menu>
-                                </Dropdown>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <select
+                                    onChange={handleSortChange}
+                                    className="text-sm border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="desc">Sort by date: newest to oldest</option>
+                                    <option value="asc">Sort by date: oldest to newest</option>
+                                </select>
 
-                                <Dropdown>
-                                    <Dropdown.Toggle variant="secondary" size="sm">
-                                        Show 20
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu>
-                                        <Dropdown.Item>Show 12</Dropdown.Item>
-                                        <Dropdown.Item>Show 20</Dropdown.Item>
-                                        <Dropdown.Item>Show 50</Dropdown.Item>
-                                    </Dropdown.Menu>
-                                </Dropdown>
+                                <select
+                                    onChange={handleLimitChange}
+                                    className="text-sm border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="5">Show 5</option>
+                                    <option value="15">Show 15</option>
+                                    <option value="20">Show 20</option>
+                                    <option value="25">Show 25</option>
+                                </select>
                             </div>
                         </div>
                         <br />
@@ -330,7 +369,7 @@ const BookDetailPage = () => {
                         <div className="d-flex justify-content-center mt-5">
                             <BookPagination
                                 currentPage={currentPage}
-                                total={totalReviews}
+                                total={totalReviewsByStar}
                                 limit={limit}
                                 onPageChange={handlePageChange}
                             />
