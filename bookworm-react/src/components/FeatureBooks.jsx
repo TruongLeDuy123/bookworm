@@ -5,8 +5,8 @@ import useFetchBooks from '../hooks/useFetchBooks';
 import { LoadingSpinner, EmptyState } from './UIComponents';
 
 export default function FeaturedBooks() {
-    const { data: recommendedBooks, loading: loadingRecommended, error: errorRecommended } = useFetchBooks("http://127.0.0.1:8002/books/top-rated-recommended");
-    const { data: popularBooks, loading: loadingPopular, error: errorPopular } = useFetchBooks("http://127.0.0.1:8002/books/top-reviewed-popular");
+    const { data: recommendedBooks, loading: loadingRecommended, error: errorRecommended } = useFetchBooks("http://127.0.0.1:8003/books/top-rated-recommended");
+    const { data: popularBooks, loading: loadingPopular, error: errorPopular } = useFetchBooks("http://127.0.0.1:8003/books/top-reviewed-popular");
 
     const [key, setKey] = useState('recommended');
 

@@ -39,7 +39,7 @@ const BookDetailPage = () => {
 
     const fetchAllReviews = async () => {
         try {
-            let url = `http://127.0.0.1:8002/reviews/pagination/?skip=${(currentPage - 1) * limit}&limit=${limit}&sort=${sortOption}`
+            let url = `http://127.0.0.1:8003/reviews/pagination/?skip=${(currentPage - 1) * limit}&limit=${limit}&sort=${sortOption}`
             if (selectedStar !== null) url += `&rating=${selectedStar}`
             let res = await (await fetch(url)).json();
             setArrayReview(res.reviews)
@@ -55,7 +55,7 @@ const BookDetailPage = () => {
 
     const fetchReview = async () => {
         try {
-            let dataReview = await fetch(`http://127.0.0.1:8002/reviews/statistics`);
+            let dataReview = await fetch(`http://127.0.0.1:8003/reviews/statistics`);
             let res = await dataReview.json();
             setTotalReviews(res.total_reviews);
             setAvgStar(res.average_rating)
@@ -72,7 +72,7 @@ const BookDetailPage = () => {
     useEffect(() => {
         const fetchInfoBook = async () => {
             try {
-                let dataBook = await fetch(`http://127.0.0.1:8002/book/${+id}`);
+                let dataBook = await fetch(`http://127.0.0.1:8003/book/${+id}`);
                 let res = await dataBook.json();
                 setBookData(res);
             } catch (e) {
@@ -82,7 +82,7 @@ const BookDetailPage = () => {
 
         const fetchDetailBook = async () => {
             try {
-                let book = await fetch(`http://127.0.0.1:8002/book-has-discount/${+id}`);
+                let book = await fetch(`http://127.0.0.1:8003/book-has-discount/${+id}`);
                 let res = await book.json();
                 setBook(res);
             } catch (e) {
@@ -185,7 +185,7 @@ const BookDetailPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            const response = await fetch("http://127.0.0.1:8002/create-reviews", {
+            const response = await fetch("http://127.0.0.1:8003/create-reviews", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

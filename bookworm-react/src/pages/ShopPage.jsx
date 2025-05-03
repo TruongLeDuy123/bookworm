@@ -26,9 +26,9 @@ const ShopPage = () => {
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                let url = `http://127.0.0.1:8002/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
-                let url_count = `http://127.0.0.1:8002/books/count?`;
-                
+                let url = `http://127.0.0.1:8003/books/pagination/?skip=${(page - 1) * limit}&limit=${limit}&sort=${sortOption}`;
+                let url_count = `http://127.0.0.1:8003/books/count?`;
+
                 if (selectIdCategory !== null) {
                     url += `&category_id=${selectIdCategory}`;
                     url_count += `category_id=${selectIdCategory}`;
@@ -65,7 +65,7 @@ const ShopPage = () => {
     useEffect(() => {
         const fetchAllCategoriesName = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8002/categories`);
+                const response = await fetch(`http://127.0.0.1:8003/categories`);
                 const data = await response.json();
                 setCategoriesName(data);
             } catch (e) {
@@ -75,7 +75,7 @@ const ShopPage = () => {
 
         const fetchAllAuthorsName = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8002/authors`);
+                const response = await fetch(`http://127.0.0.1:8003/authors`);
                 const data = await response.json();
                 setAuthorsName(data);
             } catch (e) {

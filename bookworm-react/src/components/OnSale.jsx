@@ -13,7 +13,7 @@ const chunk = (arr, size) => {
 };
 
 const OnSale = () => {
-    const { data: books, loading, error } = useFetchBooks("http://127.0.0.1:8002/books/top-discount");
+    const { data: books, loading, error } = useFetchBooks("http://127.0.0.1:8003/books/top-discount");
     const chunkedBooks = chunk(books, 4);
 
     if (loading) return <LoadingSpinner />;
