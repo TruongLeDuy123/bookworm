@@ -4,7 +4,7 @@ import BookCard from './BookCard';
 
 const BookCarousel = ({ group }) => {
     return (
-        <Row className="g-4 justify-content-center">
+        <Row className="g-4 justify-content-center w-full">
             {group && group.length ? (
                 group.map(book => (
                     <BookCard key={book.id} book={book} />

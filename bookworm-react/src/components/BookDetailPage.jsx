@@ -14,9 +14,6 @@ const BookDetailPage = () => {
     const [avgStar, setAvgStar] = useState(0)
     const [arrayStar, setArrayStar] = useState([0, 0, 0, 0, 0])
 
-    const increaseQty = () => setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
-    const decreaseQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
-
     const [title, setTitle] = useState('')
     const [detail, setDetail] = useState('')
     const [rating, setRating] = useState("1")
@@ -33,6 +30,8 @@ const BookDetailPage = () => {
 
     const [checkTotal, setCheckTotal] = useState(true);
 
+    const increaseQty = () => setQuantity(prev => prev + 1 === 9 ? 8 : prev + 1);
+    const decreaseQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
     const fetchAllReviews = async () => {
         try {
@@ -293,15 +292,18 @@ const BookDetailPage = () => {
             <br />
 
             <Row className="gy-4 mt-4">
-                <Col xs={12} md={8}>
+                {/* Left Section - Customer Reviews */}
+                <Col xs={12} lg={8}>
                     <Card className="p-4 border h-100">
-                        <h5 className="fw-bold mb-2">Customer Reviews <span className="fw-normal fs-6">(Filtered by {checkTotal ? 'all' : starFilter})</span></h5>
+                        <h5 className="fw-bold mb-2">
+                            Customer Reviews <span className="fw-normal fs-6">(Filtered by {checkTotal ? 'all' : starFilter})</span>
+                        </h5>
 
                         <div className="d-flex align-items-center mb-3">
                             <h3 className="fw-bold mb-0 me-2">{avgStar.toFixed(1)} Star</h3>
                         </div>
 
-                        <div className="mb-3 text-decoration-underline" style={{ cursor: "pointer" }}>
+                        <div className="mb-3 text-decoration-underline d-flex flex-wrap gap-2" style={{ cursor: "pointer" }}>
                             <span
                                 className={`me-4 ${checkTotal ? 'fw-bold' : ''}`}
                                 onClick={() => handleTotalReviews()}
@@ -315,20 +317,20 @@ const BookDetailPage = () => {
                                         className={`me-2 ${selectedStar === item ? 'fw-bold' : ''}`}
                                         onClick={() => handleSelectedStar(item)}
                                     >
-                                        {item} star ({arrayStar[item - 1]}) {item != 1 ? '| ' : ''}
+                                        {item} star ({arrayStar[item - 1]}) {item !== 1 ? '| ' : ''}
                                     </span>
                                 ))
                             }
                         </div>
 
-                        <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
                             <div>
-                                Showing {totalReviewsByStar == 0 ? 0 : 1 + (currentPage - 1) * limit}–{Math.min(currentPage * limit, totalReviewsByStar)} of {totalReviewsByStar} reviews
+                                Showing {totalReviewsByStar === 0 ? 0 : 1 + (currentPage - 1) * limit}–{Math.min(currentPage * limit, totalReviewsByStar)} of {totalReviewsByStar} reviews
                             </div>
-                            <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="d-flex flex-wrap gap-2">
                                 <select
                                     onChange={handleSortChange}
-                                    className="text-sm border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="form-select form-select-sm"
                                 >
                                     <option value="desc">Sort by date: newest to oldest</option>
                                     <option value="asc">Sort by date: oldest to newest</option>
@@ -336,7 +338,7 @@ const BookDetailPage = () => {
 
                                 <select
                                     onChange={handleLimitChange}
-                                    className="text-sm border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="form-select form-select-sm"
                                 >
                                     <option value="5">Show 5</option>
                                     <option value="15">Show 15</option>
@@ -345,28 +347,31 @@ const BookDetailPage = () => {
                                 </select>
                             </div>
                         </div>
-                        <br />
-                        {/* Sample Review Item */}
+
                         {
-                            arrayReview && arrayReview.length > 0 ? (
-                                arrayReview.map((review) => {
-                                    return (
-                                        <div className="">
-                                            <h6 className="fw-bold mb-3 fs-5">{review.review_title} <span className="fw-normal fs-6">| {review.rating_start} stars</span></h6>
-                                            <p className="mb-1">{review.review_details}</p>
-                                            <small className="">
-                                                {new Date(review.review_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                            </small>
-                                            <hr />
-                                        </div>
-                                    )
-                                })
+                            arrayReview?.length > 0 ? (
+                                arrayReview.map((review) => (
+                                    <div key={review.id}>
+                                        <h6 className="fw-bold mb-2 fs-5">{review.review_title}
+                                            <span className="fw-normal fs-6"> | {review.rating_start} stars</span>
+                                        </h6>
+                                        <p className="mb-1 text-break">{review.review_details}</p>
+                                        <small>
+                                            {new Date(review.review_date).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </small>
+                                        <hr />
+                                    </div>
+                                ))
                             ) : (
                                 <p>No reviews</p>
                             )
                         }
-                        {/* Pagination */}
-                        <div className="d-flex justify-content-center mt-5">
+
+                        <div className="d-flex justify-content-center mt-4">
                             <BookPagination
                                 currentPage={currentPage}
                                 total={totalReviewsByStar}
@@ -374,45 +379,40 @@ const BookDetailPage = () => {
                                 onPageChange={handlePageChange}
                             />
                         </div>
-                        {/* <Pagination className="justify-content-center">
-                            <Pagination.Prev />
-                            {Array.from({ length: totalPages }, (_, i) => (
-                                <Pagination.Item
-                                    key={i + 1}
-                                    active={i + 1 === currentPage}
-                                    onClick={() => handlePageChange(i + 1)}
-                                >
-                                    {i + 1}
-                                </Pagination.Item>
-                            )).slice(0, 5)}
-                            <Pagination.Next />
-                        </Pagination> */}
                     </Card>
                 </Col>
 
-                <Col xs={12} md={4}>
-                    <Card className="border">
+                {/* Right Section - Write Review Form */}
+                <Col xs={12} lg={4}>
+                    <Card className="border h-100 d-flex flex-column">
                         <h5 className="fw-bold ps-4 pt-4">Write a Review</h5>
                         <hr className="w-100" />
 
-                        <Form className='pb-4' onSubmit={handleSubmit}>
-                            <Form.Group className="px-4 mb-3">
+                        <Form className="px-4 pb-4" onSubmit={handleSubmit}>
+                            <Form.Group className="mb-3">
                                 <Form.Label>Add a title</Form.Label>
-                                <Form.Control type="text" placeholder="Enter review title" required maxLength={120}
-                                    onChange={handleTitle}
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter review title"
+                                    required
+                                    maxLength={120}
                                     value={title}
+                                    onChange={handleTitle}
                                 />
                             </Form.Group>
 
-                            <Form.Group className="px-4 mb-3">
+                            <Form.Group className="mb-3">
                                 <Form.Label>Details please! Your review helps other shoppers.</Form.Label>
-                                <Form.Control as="textarea" rows={3} placeholder="Write your review here..."
-                                    onChange={handleDetail}
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    placeholder="Write your review here..."
                                     value={detail}
+                                    onChange={handleDetail}
                                 />
                             </Form.Group>
 
-                            <Form.Group className="px-4 mb-4">
+                            <Form.Group className="mb-4">
                                 <Form.Label>Select a rating star</Form.Label>
                                 <Form.Select value={rating} onChange={handleRating}>
                                     <option value="1">1 Star</option>
@@ -424,12 +424,8 @@ const BookDetailPage = () => {
                             </Form.Group>
 
                             <hr className="w-100" />
-                            <div className=' px-5'>
-                                <Button
-                                    variant="secondary"
-                                    className="w-100 fw-bold"
-                                    type="submit"
-                                >
+                            <div className="px-1">
+                                <Button variant="secondary" className="w-100 fw-bold" type="submit">
                                     Submit Review
                                 </Button>
                             </div>
@@ -437,6 +433,7 @@ const BookDetailPage = () => {
                     </Card>
                 </Col>
             </Row>
+
         </Container>
     );
 };

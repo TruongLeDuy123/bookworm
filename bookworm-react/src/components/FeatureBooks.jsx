@@ -15,6 +15,7 @@ export default function FeaturedBooks() {
                 const resPopular = await fetch("http://127.0.0.1:8002/books/top-reviewed-popular");
                 const dataPop = await resPopular.json();
                 console.log("check datarec: ", dataRec);
+                console.log("check datapop: ", dataPop);
                 setRecommendedBooks(dataRec);
                 setPopularBooks(dataPop);
             } catch (err) {
@@ -27,7 +28,6 @@ export default function FeaturedBooks() {
     return (
         <Container className="my-5">
             <h4 className="text-center mb-4">Featured Books</h4>
-
             <Tabs
                 id="featured-books-tabs"
                 activeKey={key}
@@ -36,14 +36,18 @@ export default function FeaturedBooks() {
                 variant="pills"
             >
                 <Tab eventKey="recommended" title="Recommended">
-                    <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
-                        <BookCarousel group={recommendedBooks} />
+                    <div className='border rounded shadow-sm p-3 bg-white'>
+                        <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                            <BookCarousel group={recommendedBooks} />
+                        </div>
                     </div>
                 </Tab>
 
                 <Tab eventKey="popular" title="Popular">
-                    <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
-                        <BookCarousel group={popularBooks} />
+                    <div className='border rounded shadow-sm p-3 bg-white'>
+                        <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                            <BookCarousel group={popularBooks} />
+                        </div>
                     </div>
                 </Tab>
             </Tabs>

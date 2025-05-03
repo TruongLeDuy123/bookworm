@@ -50,19 +50,26 @@ const OnSale = () => {
             </div>
 
             {books.length > 0 ? (
-                <Carousel indicators={false}>
-                    {chunkedBooks.map((group, idx) => (
-                        <Carousel.Item key={idx}>
-                            <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
-                                <BookCarousel group={group} />
-                            </div>
-                        </Carousel.Item>
-                    ))}
-                </Carousel>
+                <div className="border rounded shadow-sm p-3 bg-white">
+                    <Carousel indicators={false}>
+                        {chunkedBooks.map((group, idx) => (
+                            <Carousel.Item key={idx}>
+                                <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                                    <BookCarousel group={group} />
+                                </div>
+                            </Carousel.Item>
+                        ))}
+                    </Carousel>
+
+
+                </div>
             ) : (
                 <p>No books on sale.</p>
-            )
-            }
+            )}
+
+
+
+
         </Container >
     )
 }

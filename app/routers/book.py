@@ -173,7 +173,6 @@ def get_top_books_most_reviews(db: Session = Depends(get_db)):
 def get_top_discount_books(db: Session = Depends(get_db)):
     today = date.today()
 
-    # Join Book với Discount đang còn hiệu lực
     query = (
         db.query(
             Book.book_title,
@@ -193,7 +192,7 @@ def get_top_discount_books(db: Session = Depends(get_db)):
                 or_(Discount.discount_end_date == None, Discount.discount_end_date >= today)
             )
         )
-        .order_by(desc(Book.book_price - Discount.discount_price))  # sắp theo mức giảm giá
+        .order_by(desc(Book.book_price - Discount.discount_price)) 
         .limit(10)
     )
 
