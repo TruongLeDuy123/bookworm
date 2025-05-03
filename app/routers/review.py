@@ -4,7 +4,7 @@ from sqlalchemy import func, case, asc, desc
 from app.database import get_db
 from app.models.all import Review
 from app.schemas.review import ReviewCreate
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 router = APIRouter()
@@ -100,7 +100,7 @@ def get_reviews(
                 "book_id": r.book_id,
                 "review_title": r.review_title,
                 "review_details": r.review_details,
-                "review_date": r.review_date.strftime("%Y-%m-%d %H:%M:%S"),
+                "review_date": (r.review_date + timedelta(hours=7)).strftime("%Y-%m-%d %H:%M:%S"),
                 "rating_start": r.rating_start
             }
             for r in reviews

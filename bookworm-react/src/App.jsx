@@ -7,10 +7,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import Footer from "./components/Footer";
 import ShopPage from "./pages/ShopPage";
-import BookDetailPage from "./components/BookDetailPage";
-import CartPage from "./components/CartPage";
+import BookDetailPage from "./pages/BookDetailPage";
+import CartPage from "./pages/CartPage";
 import Header from "./components/Header";
-import AboutPage from "./components/AboutPage";
+import AboutPage from "./pages/AboutPage";
 
 const App = () => {
     return (
