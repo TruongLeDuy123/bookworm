@@ -1,30 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Tabs, Tab, Row, Col } from 'react-bootstrap';
-import BookCard from './BookCard';
+import React, { useState } from 'react';
+import { Container, Tabs, Tab } from 'react-bootstrap';
 import BookCarousel from './BookCarousel';
+import useFetchBooks from '../hooks/useFetchBooks';
+import { LoadingSpinner, EmptyState } from './UIComponents';
 
 export default function FeaturedBooks() {
-    const [key, setKey] = useState('recommended');
-    const [recommendedBooks, setRecommendedBooks] = useState([]);
-    const [popularBooks, setPopularBooks] = useState([]);
-    useEffect(() => {
-        const fetchBooks = async () => {
-            try {
-                const resRecommended = await fetch("http://127.0.0.1:8002/books/top-rated-recommended");
-                const dataRec = await resRecommended.json();
-                const resPopular = await fetch("http://127.0.0.1:8002/books/top-reviewed-popular");
-                const dataPop = await resPopular.json();
-                console.log("check datarec: ", dataRec);
-                console.log("check datapop: ", dataPop);
-                setRecommendedBooks(dataRec);
-                setPopularBooks(dataPop);
-            } catch (err) {
-                console.error("Failed to fetch books", err);
-            }
-        };
+    const { data: recommendedBooks, loading: loadingRecommended, error: errorRecommended } = useFetchBooks("http://127.0.0.1:8002/books/top-rated-recommended");
+    const { data: popularBooks, loading: loadingPopular, error: errorPopular } = useFetchBooks("http://127.0.0.1:8002/books/top-reviewed-popular");
 
-        fetchBooks();
-    }, [])
+    const [key, setKey] = useState('recommended');
+
     return (
         <Container className="my-5">
             <h4 className="text-center mb-4">Featured Books</h4>
@@ -37,17 +22,29 @@ export default function FeaturedBooks() {
             >
                 <Tab eventKey="recommended" title="Recommended">
                     <div className='border rounded shadow-sm p-3 bg-white'>
-                        <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
-                            <BookCarousel group={recommendedBooks} />
-                        </div>
+                        {loadingRecommended ? (
+                            <LoadingSpinner />
+                        ) : errorRecommended ? (
+                            <EmptyState message={errorRecommended} />
+                        ) : (
+                            <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                                <BookCarousel group={recommendedBooks} />
+                            </div>
+                        )}
                     </div>
                 </Tab>
 
                 <Tab eventKey="popular" title="Popular">
                     <div className='border rounded shadow-sm p-3 bg-white'>
-                        <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
-                            <BookCarousel group={popularBooks} />
-                        </div>
+                        {loadingPopular ? (
+                            <LoadingSpinner />
+                        ) : errorPopular ? (
+                            <EmptyState message={errorPopular} />
+                        ) : (
+                            <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
+                                <BookCarousel group={popularBooks} />
+                            </div>
+                        )}
                     </div>
                 </Tab>
             </Tabs>

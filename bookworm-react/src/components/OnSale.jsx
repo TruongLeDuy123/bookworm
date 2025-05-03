@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Carousel, Card, Button, Container, Row, Col, Spinner } from 'react-bootstrap';
+import { Carousel, Button, Container } from 'react-bootstrap';
 import BookCarousel from './BookCarousel';
+import useFetchBooks from '../hooks/useFetchBooks';
+import { LoadingSpinner, EmptyState } from './UIComponents';
 
 const chunk = (arr, size) => {
     return arr.reduce((acc, _, i) => {
@@ -11,36 +13,11 @@ const chunk = (arr, size) => {
 };
 
 const OnSale = () => {
-    const [books, setBooks] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchBooks = async () => {
-            try {
-                const res = await fetch("http://127.0.0.1:8002/books/top-discount");
-                const data = await res.json();
-                setBooks(data);
-                console.log("check books: ", data);
-
-            } catch (err) {
-                console.error("Failed to fetch books", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchBooks();
-    }, []);
-
+    const { data: books, loading, error } = useFetchBooks("http://127.0.0.1:8002/books/top-discount");
     const chunkedBooks = chunk(books, 4);
 
-    if (loading) {
-        return (
-            <div className="d-flex justify-content-center my-5">
-                <Spinner animation="border" variant="secondary" />
-            </div>
-        );
-    }
+    if (loading) return <LoadingSpinner />;
+    if (error) return <EmptyState message={error} />;
 
     return (
         <Container className="mt-5">
@@ -60,18 +37,12 @@ const OnSale = () => {
                             </Carousel.Item>
                         ))}
                     </Carousel>
-
-
                 </div>
             ) : (
-                <p>No books on sale.</p>
+                <EmptyState message="No books on sale." />
             )}
-
-
-
-
-        </Container >
-    )
-}
+        </Container>
+    );
+};
 
 export default OnSale;

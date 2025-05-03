@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import logo from "../assets/images/logo.png";
 import LoginModal from './LoginModal';
 import Swal from 'sweetalert2';
@@ -7,50 +7,49 @@ import Swal from 'sweetalert2';
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
     const [user, setUser] = useState("");
     const [cartQuantity, setCartQuantity] = useState(0);
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const dropdownRef = useRef(null);
 
     const user_id = localStorage.getItem("user_id");
 
     useEffect(() => {
         const fullName = localStorage.getItem("full_name");
         if (fullName) setUser(fullName);
-    }, []);
 
-    useEffect(() => {
         const updateName = () => {
             const fullName = localStorage.getItem("full_name");
             setUser(fullName);
         };
-        updateName();
+
         window.addEventListener("full_name_updated", updateName);
         return () => window.removeEventListener("full_name_updated", updateName);
     }, []);
 
-    const handleCartUpdate = () => {
-        const quantity = +localStorage.getItem("quantity") || 0;
-        setCartQuantity(quantity);
-    };
-
     useEffect(() => {
+        const handleCartUpdate = () => {
+            const quantity = +localStorage.getItem("quantity") || 0;
+            setCartQuantity(quantity);
+        };
+
         handleCartUpdate();
         window.addEventListener("cartUpdated", handleCartUpdate);
         return () => window.removeEventListener("cartUpdated", handleCartUpdate);
     }, []);
 
     useEffect(() => {
-        function handleClickOutside(event) {
+        const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setDropdownOpen(false);
             }
-        }
+        };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const toggleMenu = () => setMenuOpen(!menuOpen);
+    const toggleMenu = () => setMenuOpen((prev) => !prev);
 
     const handleLogout = () => {
         localStorage.removeItem("access_token");
@@ -64,20 +63,59 @@ const Header = () => {
             timer: 1500,
             confirmButtonText: 'OK'
         });
-        setMenuOpen(false)
-        setDropdownOpen(false)
+        setMenuOpen(false);
+        setDropdownOpen(false);
     };
 
     const handleLogin = () => {
-        setMenuOpen(false)
+        setMenuOpen(false);
         setShowLoginModal(true);
-        setDropdownOpen(false)
-    }
+        setDropdownOpen(false);
+    };
 
     const getLinkClass = (isActive) =>
         isActive
             ? "text-black underline font-semibold transition"
             : "text-black no-underline hover:underline hover:text-blue-600 transition";
+
+    const renderDropdown = () => (
+        <div className="relative inline-block" ref={dropdownRef}>
+            <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="bg-secondary inline-flex justify-between items-center max-w-[200px] px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md"
+            >
+                <span className="truncate">{user}</span>
+            </button>
+            {dropdownOpen && (
+                <div className="absolute rounded-md bg-white border-2 shadow-lg">
+                    <ul className="py-1 px-3 hover:bg-gray-100">
+                        <li>
+                            <button onClick={handleLogout} className="block w-full py-1 text-gray-700">Sign out</button>
+                        </li>
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+
+    const renderNavLinks = () => (
+        <ul className="flex gap-10">
+            <li><NavLink to="/" className={({ isActive }) => getLinkClass(isActive)}>Home</NavLink></li>
+            <li><NavLink to="/shop" className={({ isActive }) => getLinkClass(isActive)}>Shop</NavLink></li>
+            <li><NavLink to="/about" className={({ isActive }) => getLinkClass(isActive)}>About</NavLink></li>
+            <li><NavLink to="/cart" className={({ isActive }) => getLinkClass(isActive)}>Cart <span>({cartQuantity})</span></NavLink></li>
+            <li>
+                {user ? renderDropdown() : (
+                    <button
+                        onClick={handleLogin}
+                        className="text-black hover:underline hover:text-blue-600 transition"
+                    >
+                        Sign in
+                    </button>
+                )}
+            </li>
+        </ul>
+    );
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -86,49 +124,14 @@ const Header = () => {
                     <div className="z-50">
                         <div className="flex items-center">
                             <div className="w-8 h-8 mr-2">
-                                <img src={logo} alt="" />
+                                <img src={logo} alt="Logo" />
                             </div>
                             <h1 className="text-lg font-semibold text-black mt-2">BOOKWORM</h1>
                         </div>
                     </div>
 
                     <div className="hidden md:flex items-center gap-6 text-base text-gray-700 mt-4">
-                        <nav>
-                            <ul className="flex gap-10">
-                                <li><NavLink to="/" className={({ isActive }) => getLinkClass(isActive)}>Home</NavLink></li>
-                                <li><NavLink to="/shop" className={({ isActive }) => getLinkClass(isActive)}>Shop</NavLink></li>
-                                <li><NavLink to="/about" className={({ isActive }) => getLinkClass(isActive)}>About</NavLink></li>
-                                <li><NavLink to="/cart" className={({ isActive }) => getLinkClass(isActive)}>Cart <span>({cartQuantity})</span></NavLink></li>
-                                <li>
-                                    {user ? (
-                                        <div className="relative inline-block" ref={dropdownRef}>
-                                            <button
-                                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                                                className="bg-secondary inline-flex justify-between items-center max-w-[200px] px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md"
-                                            >
-                                                <span className="truncate">{user}</span>
-                                            </button>
-                                            {dropdownOpen && (
-                                                <div className="absolute mt-2 rounded-md bg-white border-2 shadow-lg">
-                                                    <ul className="py-1 px-3 hover:bg-gray-100">
-                                                        <li>
-                                                            <button onClick={handleLogout} className="block w-full py-1 text-gray-700">Sign out</button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={handleLogin}
-                                            className="text-black hover:underline hover:text-blue-600 transition"
-                                        >
-                                            Sign in
-                                        </button>
-                                    )}
-                                </li>
-                            </ul>
-                        </nav>
+                        <nav>{renderNavLinks()}</nav>
                     </div>
                 </div>
 
@@ -153,25 +156,7 @@ const Header = () => {
                                 <li><NavLink to="/about" className={({ isActive }) => getLinkClass(isActive)}>About</NavLink></li>
                                 <li><NavLink to={`/cart/${user_id}`} className={({ isActive }) => getLinkClass(isActive)}>Cart <span>({cartQuantity})</span></NavLink></li>
                                 <li>
-                                    {user ? (
-                                        <div className="relative inline-block" ref={dropdownRef}>
-                                            <button
-                                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                                                className="bg-secondary inline-flex justify-between items-center max-w-[200px] px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md"
-                                            >
-                                                <span className="truncate">{user}</span>
-                                            </button>
-                                            {dropdownOpen && (
-                                                <div className="absolute mt-2 rounded-md bg-white border-2 shadow-lg">
-                                                    <ul className="py-1 px-3 hover:bg-gray-100">
-                                                        <li>
-                                                            <button onClick={handleLogout} className="block w-full py-1 text-gray-700">Sign out</button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
+                                    {user ? renderDropdown() : (
                                         <button
                                             onClick={handleLogin}
                                             className="text-black hover:underline hover:text-blue-600 transition"
@@ -186,7 +171,6 @@ const Header = () => {
                 )}
             </header>
 
-            {/* Login Modal */}
             <LoginModal
                 show={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
