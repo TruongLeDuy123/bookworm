@@ -56,7 +56,6 @@ const LoginModal = ({ show, onClose }) => {
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi khi đăng nhập!',
-                text: err.message,
                 confirmButtonText: 'OK'
             });
         }

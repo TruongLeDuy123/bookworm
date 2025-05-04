@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom';
 
 const BookCard = ({ book }) => {
     const hasDiscount = book.final_price < book.book_price;
-
+    console.log("check book: ", book);
+    
     return (
         <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
             <Link to={`/book/${book.book_id}`} className="text-decoration-none text-dark">
                 <Card className="h-100">
                     <Card.Img
                         variant="top"
-                        src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                        src={book.book_img ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg": "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
                         className="img-fluid object-fit-cover"
                         style={{ maxHeight: '200px' }}
                     />

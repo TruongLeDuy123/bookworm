@@ -7,7 +7,7 @@ const BookInfo = ({ bookData }) => {
             <div className="row g-0">
                 <Col xs={12} md={3} className="d-flex flex-column align-items-center p-3">
                     <img
-                        src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                        src={bookData.book_cover_photo ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg": "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
                         alt="Book"
                         className="img-fluid w-100 mb-2"
                         style={{ maxWidth: '150px', objectFit: 'cover' }}

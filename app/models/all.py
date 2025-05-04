@@ -20,7 +20,7 @@ class Book(Base):
     book_title = Column(String(255))
     book_summary = Column(Text)
     book_price = Column(Numeric(5, 2))
-    book_cover_photo = Column(String(20))
+    book_cover_photo = Column(String(20), nullable=True)
 
     category = relationship("Category", back_populates="books")
     author = relationship("Author", back_populates="books")
@@ -43,7 +43,7 @@ class Discount(Base):
     id = Column(BigInteger, primary_key=True)
     book_id = Column(BigInteger, ForeignKey("book.id"))
     discount_start_date = Column(Date)
-    discount_end_date = Column(Date)
+    discount_end_date = Column(Date, nullable=True)
     discount_price = Column(Numeric(5, 2))
 
     book = relationship("Book", back_populates="discounts")

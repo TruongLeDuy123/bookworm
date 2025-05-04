@@ -4,7 +4,7 @@ from sqlalchemy import func
 from app.database import SessionLocal
 from app.models.all import Author, Category, User, Book, Discount, Order, OrderItem, Review
 import random
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 fake = Faker()
@@ -52,15 +52,13 @@ def seed_books(n=20):
     for _ in range(n):
         author = random.choice(authors)
         category = random.choice(categories)
-        keyword = category.category_name.lower()
 
-        # URL ngẫu nhiên với kích thước ngắn hơn, đảm bảo không vượt quá 20 ký tự
-        random_num = random.randint(1, 999)
-        book_cover_photo = f"https://source.unsplash.com/200x300/?{keyword},{random_num}"
-
-        # Giới hạn độ dài URL book_cover_photo không vượt quá 20 ký tự
-        if len(book_cover_photo) > 20:
-            book_cover_photo = book_cover_photo[:20]
+        # 70% có ảnh, 30% để None
+        book_cover_photo = None
+        if random.random() < 0.7:
+            keyword = category.category_name.lower()
+            random_num = random.randint(1, 999)
+            book_cover_photo = f"https://source.unsplash.com/200x300/?{keyword},{random_num}"
 
         book = Book(
             author_id=author.id,
@@ -68,16 +66,17 @@ def seed_books(n=20):
             book_title=fake.sentence(nb_words=4),
             book_summary=fake.paragraph(nb_sentences=3),
             book_price=round(random.uniform(10, 100), 2),
-            book_cover_photo=book_cover_photo
+            book_cover_photo=book_cover_photo  # Có thể là None
         )
         db.add(book)
     db.commit()
+
 
 # Seed Discount
 def seed_discounts():
     books = db.query(Book).all()
     for book in random.sample(books, k=min(10, len(books))):
-        start_date = fake.date_this_year()
+        start_date = date.today()
         discount = Discount(
             book_id=book.id,
             discount_start_date=start_date,
@@ -138,14 +137,32 @@ def seed_reviews():
             db.add(review)
     db.commit()
 
+def remove_duplicate_categories():
+    categories = db.query(Category).all()
+    seen = set()
+    for category in categories:
+        if category.category_name in seen:
+            db.delete(category)
+        else:
+            seen.add(category.category_name)
+    db.commit()
+
+def remove_books_with_null_category():
+    books_with_null_category = db.query(Book).filter(Book.category_id == None).all()
+    for book in books_with_null_category:
+        db.delete(book)
+    db.commit()
+
 # --- RUN ALL ---
 if __name__ == "__main__":
-    seed_authors()
-    seed_categories()
-    seed_users()
-    seed_books()
-    seed_discounts()
-    seed_orders()
-    seed_order_items()
-    seed_reviews()
+    # seed_authors()
+    # seed_categories()
+    # seed_users()
+    # seed_books()
+    # seed_discounts()
+    # seed_orders()
+    # seed_order_items()
+    # seed_reviews()
+    # remove_books_with_null_category()
+    # remove_duplicate_categories()
     print("✅ Đã seed toàn bộ dữ liệu giả thành công!")

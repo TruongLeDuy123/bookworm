@@ -1,10 +1,32 @@
 import { Pagination } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
 
 const BookPagination = ({ currentPage, total, limit, onPageChange }) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 576);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 576);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const totalPages = Math.ceil(total / limit);
     if (total === 0) return null;
 
     const getVisiblePages = () => {
+        if (isMobile) {
+            // Trên mobile: chỉ hiển thị trang đầu, hiện tại, cuối (nếu cần)
+            const pages = [];
+            if (currentPage > 2) pages.push(1, '...');
+            if (currentPage !== 1 && currentPage !== totalPages) pages.push(currentPage);
+            if (currentPage < totalPages - 1) pages.push('...', totalPages);
+            // Nếu chỉ có 1 trang hoặc đang ở đầu/cuối thì chỉ hiển thị trang đó
+            if (currentPage === 1) pages.unshift(1);
+            if (currentPage === totalPages && totalPages !== 1) pages.push(totalPages);
+            // Loại bỏ trùng lặp
+            return [...new Set(pages)];
+        }
+
         const pages = [];
 
         if (totalPages <= 7) {
@@ -48,7 +70,7 @@ const BookPagination = ({ currentPage, total, limit, onPageChange }) => {
                     <Pagination.Ellipsis key={`ellipsis-${idx}`} />
                 ) : (
                     <Pagination.Item
-                        key={`page-${page}`} 
+                        key={`page-${page}`}
                         active={currentPage === page}
                         onClick={() => onPageChange(page)}
                     >

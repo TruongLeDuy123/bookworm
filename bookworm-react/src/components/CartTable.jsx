@@ -19,10 +19,11 @@ const CartTable = ({ orderItems, increaseQty, decreaseQty }) => {
                         return (
                             <tr key={orderItem.book_id}>
                                 <td>
-                                    <Link to={`/book/${orderItem.book_id}`} className="text-decoration-none text-dark">
+                                    <Link to={`/book/${orderItem.book_id}`} className="text-decoration-none text-dark" target="_blank"
+                                    >
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src="https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"
+                                                src={orderItem.book_cover_photo ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg": "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
                                                 alt="Book"
                                                 className="me-3 img-fluid"
                                                 style={{ maxWidth: '80px', maxHeight: '100px' }}

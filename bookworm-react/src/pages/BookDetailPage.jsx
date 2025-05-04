@@ -39,7 +39,7 @@ const BookDetailPage = () => {
 
     const fetchAllReviews = async () => {
         try {
-            let url = `http://127.0.0.1:8003/reviews/pagination/?skip=${(currentPage - 1) * limit}&limit=${limit}&sort=${sortOption}`
+            let url = `http://127.0.0.1:8003/reviews/pagination/?book_id=${+id}&skip=${(currentPage - 1) * limit}&limit=${limit}&sort=${sortOption}`
             if (selectedStar !== null) url += `&rating=${selectedStar}`
             let res = await (await fetch(url)).json();
             setArrayReview(res.reviews)
@@ -55,7 +55,7 @@ const BookDetailPage = () => {
 
     const fetchReview = async () => {
         try {
-            let dataReview = await fetch(`http://127.0.0.1:8003/reviews/statistics`);
+            let dataReview = await fetch(`http://127.0.0.1:8003/reviews/statistics/${+id}`);
             let res = await dataReview.json();
             setTotalReviews(res.total_reviews);
             setAvgStar(res.average_rating)

@@ -4,6 +4,7 @@ import { Carousel, Button, Container } from 'react-bootstrap';
 import BookCarousel from './BookCarousel';
 import useFetchBooks from '../hooks/useFetchBooks';
 import { LoadingSpinner, EmptyState } from './UIComponents';
+import "./Carousel.css"
 
 const chunk = (arr, size) => {
     return arr.reduce((acc, _, i) => {
@@ -27,8 +28,8 @@ const OnSale = () => {
             </div>
 
             {books.length > 0 ? (
-                <div className="border rounded shadow-sm p-3 bg-white">
-                    <Carousel indicators={false}>
+                <div className="border rounded shadow-sm p-3 bg-white position-relative carousel-wrapper">
+                    <Carousel indicators={false} nextLabel="" prevLabel="">
                         {chunkedBooks.map((group, idx) => (
                             <Carousel.Item key={idx}>
                                 <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
@@ -41,6 +42,7 @@ const OnSale = () => {
             ) : (
                 <EmptyState message="No books on sale." />
             )}
+
         </Container>
     );
 };
