@@ -1,6 +1,7 @@
 from app.models.all import Book, Order, OrderItem
 from app.schemas.order import OrderCreate
 from sqlalchemy.orm import Session
+from datetime import date
 
 def create_order_service(order_data: OrderCreate, db: Session):
     unavailable_books = []
@@ -13,6 +14,7 @@ def create_order_service(order_data: OrderCreate, db: Session):
     new_order = Order(
         user_id=order_data.user_id,
         order_amount=sum(item.quantity * item.price for item in order_data.cart),
+        order_date=date.today()
     )
     db.add(new_order)
     db.commit()
