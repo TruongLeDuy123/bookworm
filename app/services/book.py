@@ -368,7 +368,7 @@ def check_book_with_discount_service(db, book_id: int):
     discount = (
         db.query(Discount)
         .filter(Discount.book_id == book_id)
-        .filter(((Discount.discount_start_date <= today) & (Discount.discount_end_date >= today)) | (Discount.discount_end_date == None))
+        .filter((Discount.discount_start_date <= today) & ((Discount.discount_end_date >= today) | (Discount.discount_end_date == None)))
         .filter(and_(Discount.discount_price != None, Discount.discount_price >= 0))
         .first()
     )
