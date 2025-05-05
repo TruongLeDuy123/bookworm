@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import LoginModal from "../components/LoginModal";
 import CartTable from "../components/CartTable";
 import CartSummary from "../components/CartSummary";
+import { fetchWithAuth } from "../fetchWithAuth";
 
 const ShoppingCart = () => {
     const [orderItems, setOrderItems] = useState(null);

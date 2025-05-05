@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 
 const BookCard = ({ book }) => {
     const hasDiscount = book.final_price < book.book_price;
-    console.log("check book: ", book);
-    
     return (
         <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
             <Link to={`/book/${book.book_id}`} className="text-decoration-none text-dark">

@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import logo from "../assets/images/logo.png";
 import LoginModal from './LoginModal';
 import Swal from 'sweetalert2';
+import { fetchWithAuth } from '../fetchWithAuth';
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -51,7 +52,12 @@ const Header = () => {
 
     const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        // Gọi API logout để xóa refresh_token ở cookie
+        await fetch('http://127.0.0.1:8003/logout', {
+            method: 'POST',
+            credentials: 'include',
+        });
         localStorage.removeItem("access_token");
         localStorage.removeItem("full_name");
         localStorage.removeItem("user_id");

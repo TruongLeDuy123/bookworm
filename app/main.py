@@ -7,7 +7,7 @@ app = FastAPI()
 # ✅ Thêm cấu hình CORS để cho phép frontend (React) gọi API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # địa chỉ của frontend
+    allow_origins=["http://localhost:5173"],  # địa chỉ của frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

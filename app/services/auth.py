@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+import os
+from fastapi import FastAPI, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -6,12 +7,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from app.models.all import User
-# from app.schemas.user import UserCreate, UserOut
-# from app.services.user import create_user
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 # JWT authentication settings
-SECRET_KEY = "your-secret-key" # Change this to a secure secret key
+SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key")  
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -33,7 +32,24 @@ def create_access_token(data: dict, expires_delta: timedelta):
 def create_refresh_token(data: dict, expires_delta: timedelta):
     return create_token(data, expires_delta, "refresh")
 
-# ====== AUTH UTILS ======
+def set_refresh_token_cookie(response: Response, refresh_token: str):
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        expires=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        samesite="lax",
+        secure=False  # Để True nếu dùng HTTPS
+    )
+
+def clear_refresh_token_cookie(response: Response):
+    response.delete_cookie(
+        key="refresh_token",
+        samesite="lax",
+        secure=False  # Để True nếu dùng HTTPS
+    )
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -43,7 +59,7 @@ def authenticate_user(db: Session, email: str, password: str):
         return None
     return user
 
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Invalid email or password")
@@ -60,37 +76,47 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         data={"sub": user.email},
         expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
-
+    set_refresh_token_cookie(response, refresh_token)
     return {
         "access_token": access_token,
-        "refresh_token": refresh_token,
         "token_type": "bearer",
         "full_name": f"{user.first_name} {user.last_name}",
         "user_id": user.id
     }
 
-# @app.get("/users/me", response_model=UserOut)
-# async def get_current_user(token: str=Depends(oauth2_schema), db: Session = Depends(get_db)):
-#     user_id = validate_token_and_extract_user_id(token)
-#     # print(user_id)
-#     # Fetch user details from db using the user_id
-#     user = crud.get_user_by_id(db, user_id)
-#     if user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return user
+async def logout(response: Response):
+    clear_refresh_token_cookie(response)
+    return {"message": "Logged out"}
 
-# def validate_token_and_extract_user_id(token: str) -> int:
-#     try:
-#         # Decode the JWT token to extract user information
-#         # print(token)
-#         decoded_token = jwt.decode(token, "your-secret-key", algorithms=["HS256"])
-#         user_id = decoded_token.get("sub")
-#         if user_id is None:
-#             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User ID not found in token")
-#         return user_id
-#     except JWTError:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-#     except jwt.ExpiredSignatureError:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-#     except ValueError:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+def get_refresh_token_from_cookie(request: Request):
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+    return refresh_token
+
+async def refresh_access_token(request: Request, response: Response, db: Session = Depends(get_db)):
+    refresh_token = get_refresh_token_from_cookie(request)
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        email = payload.get("sub")
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        access_token = create_access_token(
+            data={
+                "sub": user.email,
+                "full_name": f"{user.first_name} {user.last_name}",
+                "user_id": user.id
+            },
+            expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "full_name": f"{user.first_name} {user.last_name}",
+            "user_id": user.id
+        }
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")

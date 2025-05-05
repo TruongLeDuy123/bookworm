@@ -22,7 +22,8 @@ const LoginModal = ({ show, onClose }) => {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-                body: `grant_type=password&username=${email}&password=${password}&scope=&client_id=string&client_secret=string`
+                body: `grant_type=password&username=${email}&password=${password}&scope=&client_id=string&client_secret=string`,
+                credentials: "include"
             });
 
             const data = await response.json();
@@ -44,7 +45,6 @@ const LoginModal = ({ show, onClose }) => {
                     confirmButtonText: 'OK'
                 });
                 localStorage.setItem("access_token", data.access_token);
-                localStorage.setItem("refresh_token", data.refresh_token);
                 localStorage.setItem("user_id", data.user_id);
                 localStorage.setItem("full_name", data.full_name);
                 window.dispatchEvent(new Event("full_name_updated"));
