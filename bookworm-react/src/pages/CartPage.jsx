@@ -5,7 +5,6 @@ import Swal from 'sweetalert2';
 import LoginModal from "../components/LoginModal";
 import CartTable from "../components/CartTable";
 import CartSummary from "../components/CartSummary";
-import { fetchWithAuth } from "../fetchWithAuth";
 
 const ShoppingCart = () => {
     const [orderItems, setOrderItems] = useState(null);
@@ -19,7 +18,7 @@ const ShoppingCart = () => {
     }, []);
 
     const checkout = async (cart, userId) => {
-        const res = await fetch(`http://127.0.0.1:8003/orders`, {
+        const res = await fetch(`http://127.0.0.1:8002/orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ cart, user_id: userId })

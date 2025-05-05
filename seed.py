@@ -153,6 +153,25 @@ def remove_books_with_null_category():
         db.delete(book)
     db.commit()
 
+def clean_discounts():
+    # Xóa các bản ghi có book_id NULL
+    db.query(Discount).filter(Discount.book_id == None).delete(synchronize_session=False)
+
+    # Xóa các bản ghi trùng book_id (giữ lại 1 bản ghi)
+    duplicate_ids = (
+        db.query(Discount.book_id)
+        .group_by(Discount.book_id)
+        .having(func.count(Discount.id) > 1)
+        .all()
+    )
+
+    for (book_id,) in duplicate_ids:
+        discounts = db.query(Discount).filter(Discount.book_id == book_id).order_by(Discount.id).all()
+        for discount in discounts[1:]:
+            db.delete(discount)
+
+    db.commit()
+
 # --- RUN ALL ---
 if __name__ == "__main__":
     # seed_authors()
@@ -165,4 +184,5 @@ if __name__ == "__main__":
     # seed_reviews()
     # remove_books_with_null_category()
     # remove_duplicate_categories()
+    clean_discounts()
     print("✅ Đã seed toàn bộ dữ liệu giả thành công!")

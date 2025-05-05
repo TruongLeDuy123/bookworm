@@ -51,7 +51,7 @@ const sliderSettings = {
 };
 
 const OnSale = () => {
-    const { data: books, loading, error } = useFetchBooks("http://127.0.0.1:8003/books/top-discount");
+    const { data: books, loading, error } = useFetchBooks("http://127.0.0.1:8002/books/top-discount");
 
     if (loading) return <LoadingSpinner />;
     if (error) return <EmptyState message={error} />;

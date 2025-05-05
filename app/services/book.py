@@ -3,8 +3,6 @@ from sqlalchemy import func, select, case, asc, desc, and_, or_, cast, Integer
 from datetime import date
 from app.models.all import Book, Discount, Review, Category, Author
 
-# 1. Top rated books
-
 def get_top_rated_books_service(db):
     today = date.today()
     discount_subq = (
@@ -76,8 +74,6 @@ def get_top_rated_books_service(db):
         })
     return result
 
-# 2. Top reviewed books
-
 def get_top_books_most_reviews_service(db):
     today = date.today()
     discount_subq = (
@@ -139,8 +135,6 @@ def get_top_books_most_reviews_service(db):
             "total_reviews": total_reviews,
         })
     return result
-
-# 3. Top discount books
 
 def get_top_discount_books_service(db):
     today = date.today()

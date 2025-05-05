@@ -10,7 +10,7 @@ export async function fetchWithAuth(url, options = {}) {
 
     if (response.status === 401) {
         // Token hết hạn, gọi refresh
-        const refreshRes = await fetch("http://127.0.0.1:8003/refresh-token", {
+        const refreshRes = await fetch("http://127.0.0.1:8002/refresh-token", {
             method: "POST",
             credentials: "include",
         });

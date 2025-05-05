@@ -53,7 +53,7 @@ const Header = () => {
 
     const handleLogout = async () => {
         // Gọi API logout để xóa refresh_token ở cookie
-        await fetch('http://127.0.0.1:8003/logout', {
+        await fetch('http://127.0.0.1:8002/logout', {
             method: 'POST',
             credentials: 'include',
         });
