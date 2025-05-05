@@ -1,65 +1,62 @@
-.carousel-wrapper .carousel-control-prev,
-.carousel-wrapper .carousel-control-next {
+.custom-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  background: transparent;
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 2rem;
+  cursor: pointer;
   z-index: 2;
 }
 
-.carousel-wrapper .carousel-control-prev {
-  left: -30px;
+/* Mũi tên trái */
+.prev-arrow {
+  border-width: 25px 35px 25px 0;
+  border-color: transparent #ccc transparent transparent;
+  left: -20px;
 }
 
-.carousel-wrapper .carousel-control-next {
-  right: -30px;
+/* Mũi tên phải */
+.next-arrow {
+  border-width: 25px 0 25px 35px;
+  border-color: transparent transparent transparent #ccc;
+  right: -20px;
 }
 
-.carousel-wrapper .carousel-control-prev-icon,
-.carousel-wrapper .carousel-control-next-icon {
-  filter: invert(1) grayscale(100%) brightness(2);
+/* Hover effect */
+.prev-arrow:hover {
+  border-right-color: #888;
 }
 
-@media (max-width: 576px) {
-  .carousel-wrapper .carousel-control-prev {
-    left: -10px;
-  }
-  .carousel-wrapper .carousel-control-next {
-    right: -10px;
-  }
-  .carousel-wrapper .carousel-control-prev,
-  .carousel-wrapper .carousel-control-next {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-  }
+.next-arrow:hover {
+  border-left-color: #888;
 }
 
-@media (min-width: 577px) and (max-width: 991px) {
-  .carousel-wrapper .carousel-control-prev {
-    left: -20px;
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .prev-arrow {
+    border-width: 20px 28px 20px 0;
   }
-  .carousel-wrapper .carousel-control-next {
-    right: -20px;
-  }
-  .carousel-wrapper .carousel-control-prev,
-  .carousel-wrapper .carousel-control-next {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
+  .next-arrow {
+    border-width: 20px 0 20px 28px;
   }
 }
 
-@media (min-width: 992px) {
-  .carousel-wrapper .carousel-control-prev {
-    left: -30px;
+@media (max-width: 900px) {
+  .prev-arrow {
+    border-width: 16px 22px 16px 0;
   }
-  .carousel-wrapper .carousel-control-next {
-    right: -30px;
+  .next-arrow {
+    border-width: 16px 0 16px 22px;
   }
-  .carousel-wrapper .carousel-control-prev,
-  .carousel-wrapper .carousel-control-next {
-    width: 60px;
-    height: 60px;
-    font-size: 2rem;
+}
+
+@media (max-width: 600px) {
+  .prev-arrow {
+    border-width: 12px 18px 12px 0;
+  }
+  .next-arrow {
+    border-width: 12px 0 12px 18px;
   }
 }

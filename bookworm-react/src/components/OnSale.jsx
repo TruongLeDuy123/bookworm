@@ -1,21 +1,57 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Carousel, Button, Container } from 'react-bootstrap';
-import BookCarousel from './BookCarousel';
+import { Button, Container } from 'react-bootstrap';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import useFetchBooks from '../hooks/useFetchBooks';
 import { LoadingSpinner, EmptyState } from './UIComponents';
-import "./Carousel.css"
+import "./Carousel.css";
+import BookCardCarousel from './BookCardCarousel';
 
-const chunk = (arr, size) => {
-    return arr.reduce((acc, _, i) => {
-        if (i % size === 0) acc.push(arr.slice(i, i + size));
-        return acc;
-    }, []);
+const PrevArrow = ({ onClick }) => (
+    <div className={`custom-arrow prev-arrow`} onClick={onClick} />
+);
+
+const NextArrow = ({ onClick }) => (
+    <div className={`custom-arrow next-arrow`} onClick={onClick} />
+);
+
+const sliderSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    responsive: [
+        {
+            breakpoint: 1200,
+            settings: {
+                slidesToShow: 3,
+                slidesToScroll: 1
+            }
+        },
+        {
+            breakpoint: 900,
+            settings: {
+                slidesToShow: 2,
+                slidesToScroll: 1
+            }
+        },
+        {
+            breakpoint: 600,
+            settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1
+            }
+        }
+    ]
 };
 
 const OnSale = () => {
     const { data: books, loading, error } = useFetchBooks("http://127.0.0.1:8003/books/top-discount");
-    const chunkedBooks = chunk(books, 4);
 
     if (loading) return <LoadingSpinner />;
     if (error) return <EmptyState message={error} />;
@@ -29,20 +65,17 @@ const OnSale = () => {
 
             {books.length > 0 ? (
                 <div className="border rounded shadow-sm p-3 bg-white position-relative carousel-wrapper">
-                    <Carousel indicators={false} nextLabel="" prevLabel="">
-                        {chunkedBooks.map((group, idx) => (
-                            <Carousel.Item key={idx}>
-                                <div className="d-flex justify-content-center mx-2 mx-sm-3 mx-md-4 mx-lg-5">
-                                    <BookCarousel group={group} />
-                                </div>
-                            </Carousel.Item>
+                    <Slider {...sliderSettings}>
+                        {books.map((group, idx) => (
+                            <div key={idx} className=''>
+                                <BookCardCarousel book={group} />
+                            </div>
                         ))}
-                    </Carousel>
+                    </Slider>
                 </div>
             ) : (
                 <EmptyState message="No books on sale." />
             )}
-
         </Container>
     );
 };

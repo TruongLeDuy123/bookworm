@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import logo from "../assets/images/logo.png";
 import LoginModal from './LoginModal';
 import Swal from 'sweetalert2';
-import { fetchWithAuth } from '../fetchWithAuth';
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);

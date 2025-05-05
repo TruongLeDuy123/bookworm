@@ -14,9 +14,9 @@ import AboutPage from "./pages/AboutPage";
 
 const App = () => {
     return (
-        <div>
+        <div className="d-flex flex-column min-vh-100">
             <Header />
-            <main>
+            <main className="flex-grow-1">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/shop" element={<ShopPage />} />

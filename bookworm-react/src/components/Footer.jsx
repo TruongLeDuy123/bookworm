@@ -48,14 +48,7 @@ const Footer = () => {
                         </ul>
                     </Col>
 
-                    <Col xs={6} md={2} className='mt-2'>
-                        <h6>Legal</h6>
-                        <ul className="list-unstyled">
-                            <li><Link to="/return-policy" className="text-muted text-decoration-none">Return Policy</Link></li>
-                            <li><Link to="/refund-policy" className="text-muted text-decoration-none">Refund Policy</Link></li>
-                            <li><Link to="/shipping-policy" className="text-muted text-decoration-none">Shipping Policy</Link></li>
-                        </ul>
-                    </Col>
+                   
 
                     <Col xs={6} md={2} className='mt-2'>
                         <h6>Follow Us</h6>
