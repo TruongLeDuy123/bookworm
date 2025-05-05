@@ -27,14 +27,14 @@ const ShoppingCart = () => {
         const data = await res.json();
 
         if (data.changed_prices && data.changed_prices.length > 0) {
-            let msg = 'Một số sách đã thay đổi giá:\n';
+            let msg = 'Một số sách đã thay đổi giá:<br>';
             data.changed_prices.forEach(item => {
-                msg += `- Sách ID ${item.book_id}: ${item.old_price} → ${item.new_price}\n`;
+                msg += `- Sách ID ${item.book_id}: ${item.old_price} → ${item.new_price}<br>`;
             });
             Swal.fire({
                 icon: 'info',
                 title: 'Giá sách đã thay đổi!',
-                text: msg,
+                html: msg,
                 confirmButtonText: 'OK',
                 timer: 10000,
                 timerProgressBar: true,

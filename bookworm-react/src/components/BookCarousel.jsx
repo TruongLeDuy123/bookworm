@@ -6,8 +6,8 @@ const BookCarousel = ({ group }) => {
     return (
         <Row className="g-4 justify-content-center w-full">
             {group && group.length ? (
-                group.map(book => (
-                    <BookCard key={book.id} book={book} />
+                group.map((book, idx) => (
+                    <BookCard key={idx} book={book} />
                 ))
             ) : (
                 <Col xs={6} md={4} lg={3} xl={3} className="mb-4">
