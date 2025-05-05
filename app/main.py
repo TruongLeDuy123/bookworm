@@ -4,10 +4,9 @@ from app.routers import user, auth, book, category, author, order, review
 
 app = FastAPI()
 
-# ✅ Thêm cấu hình CORS để cho phép frontend (React) gọi API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # địa chỉ của frontend
+    allow_origins=["http://localhost:5173"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

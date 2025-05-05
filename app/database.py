@@ -19,12 +19,5 @@ def get_db():
     finally:
         db.close()
 
-# engine = create_engine(SQLALCHEMY_DATABASE_URL)
-# async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL_ASYNC)
 
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# AsyncSessionLocal = async_sessionmaker(async_engine, autocommit=False, autoflush=False)
-
-# metadata = MetaData()
-# Base = declarative_base(metadata=metadata)
 

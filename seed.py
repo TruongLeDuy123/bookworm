@@ -172,6 +172,10 @@ def clean_discounts():
 
     db.commit()
 
+def remove_order_item_null():
+    db.query(OrderItem).filter(OrderItem.book_id == None).delete(synchronize_session=False)
+    db.commit()
+
 # --- RUN ALL ---
 if __name__ == "__main__":
     # seed_authors()
@@ -184,5 +188,6 @@ if __name__ == "__main__":
     # seed_reviews()
     # remove_books_with_null_category()
     # remove_duplicate_categories()
-    clean_discounts()
+    remove_order_item_null()
+    # clean_discounts()
     print("✅ Đã seed toàn bộ dữ liệu giả thành công!")

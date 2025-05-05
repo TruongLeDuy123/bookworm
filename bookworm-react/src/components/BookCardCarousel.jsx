@@ -1,8 +1,11 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { formatCurrency } from '../utils/formatCurrency';
 
 const BookCardCarousel = ({ book }) => {
+    const { currency, exchangeRate } = useCurrency();
     const hasDiscount = book.final_price < book.book_price;
 
     return (
@@ -39,12 +42,12 @@ const BookCardCarousel = ({ book }) => {
                         {hasDiscount ? (
                             <>
                                 <span className="text-muted text-decoration-line-through me-2">
-                                    ${Number(book.book_price).toFixed(2)}
+                                    {formatCurrency(book.book_price, currency, exchangeRate)}
                                 </span>
-                                <strong>${Number(book.final_price).toFixed(2)}</strong>
+                                <strong>{formatCurrency(book.final_price, currency, exchangeRate)}</strong>
                             </>
                         ) : (
-                            <strong>${Number(book.book_price).toFixed(2)}</strong>
+                            <strong>{formatCurrency(book.book_price, currency, exchangeRate)}</strong>
                         )}
                     </Card.Footer>
                 </Card>

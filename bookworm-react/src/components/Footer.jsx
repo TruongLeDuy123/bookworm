@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 import logo from '../assets/images/logo.png';
+import CurrencySelector from './CurrencySelector';
 
 const Footer = () => {
     return (
@@ -48,8 +49,6 @@ const Footer = () => {
                         </ul>
                     </Col>
 
-                   
-
                     <Col xs={6} md={2} className='mt-2'>
                         <h6>Follow Us</h6>
                         <div className="d-flex gap-2">
@@ -63,6 +62,12 @@ const Footer = () => {
                                 <FaInstagram />
                             </a>
                         </div>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col xs={12} className="d-flex justify-content-end mt-3">
+                        <CurrencySelector />
                     </Col>
                 </Row>
 

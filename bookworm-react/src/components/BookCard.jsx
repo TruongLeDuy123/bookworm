@@ -1,8 +1,11 @@
 import React from 'react';
 import { Card, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { formatCurrency } from '../utils/formatCurrency';
 
 const BookCard = ({ book }) => {
+    const { currency, exchangeRate } = useCurrency();
     const hasDiscount = book.final_price < book.book_price;
     return (
         <Col xs={12} sm={6} md={4} lg={3} className="mb-4">
@@ -10,7 +13,7 @@ const BookCard = ({ book }) => {
                 <Card className="h-100">
                     <Card.Img
                         variant="top"
-                        src={book.book_img ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg": "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
+                        src={book.book_img ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg" : "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
                         className="img-fluid object-fit-cover"
                         style={{ maxHeight: '200px' }}
                     />
@@ -32,12 +35,12 @@ const BookCard = ({ book }) => {
                         {hasDiscount ? (
                             <>
                                 <span className="text-muted text-decoration-line-through me-2">
-                                    ${Number(book.book_price).toFixed(2)}
+                                    {formatCurrency(book.book_price, currency, exchangeRate)}
                                 </span>
-                                <strong>${Number(book.final_price).toFixed(2)}</strong>
+                                <strong>{formatCurrency(book.final_price, currency, exchangeRate)}</strong>
                             </>
                         ) : (
-                            <strong>${Number(book.book_price).toFixed(2)}</strong>
+                            <strong>{formatCurrency(book.book_price, currency, exchangeRate)}</strong>
                         )}
                     </Card.Footer>
                 </Card>

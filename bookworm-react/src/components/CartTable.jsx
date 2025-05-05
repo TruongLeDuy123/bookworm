@@ -1,8 +1,11 @@
 import React from "react";
 import { Table, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { formatCurrency } from '../utils/formatCurrency';
 
 const CartTable = ({ orderItems, increaseQty, decreaseQty }) => {
+    const { currency, exchangeRate } = useCurrency();
     return (
         <div className="table-responsive">
             {(!orderItems || orderItems.length === 0) ? (
@@ -43,16 +46,16 @@ const CartTable = ({ orderItems, increaseQty, decreaseQty }) => {
                                             {orderItem.has_discount ? (
                                                 <>
                                                     <span className="fw-bold">
-                                                        ${Number(orderItem.price).toFixed(2)}
+                                                        {formatCurrency(orderItem.price, currency, exchangeRate)}
                                                     </span>
                                                     <br />
                                                     <span className="text-decoration-line-through">
-                                                        ${Number(orderItem.book_price).toFixed(2)}
+                                                        {formatCurrency(orderItem.book_price, currency, exchangeRate)}
                                                     </span>
                                                 </>
                                             ) : (
                                                 <span className="fw-bold">
-                                                    ${Number(orderItem.price).toFixed(2)}
+                                                    {formatCurrency(orderItem.price, currency, exchangeRate)}
                                                 </span>
                                             )}
                                         </div>
@@ -64,7 +67,7 @@ const CartTable = ({ orderItems, increaseQty, decreaseQty }) => {
                                             <Button variant="outline-secondary" size="sm" style={{ width: "30px" }} onClick={() => increaseQty(orderItem.book_id)}>+</Button>
                                         </div>
                                     </td>
-                                    <td className="fw-bold">${Number(orderItem.quantity * orderItem.price).toFixed(2)}</td>
+                                    <td className="fw-bold">{formatCurrency(orderItem.quantity * orderItem.price, currency, exchangeRate)}</td>
                                 </tr>
                             );
                         })}

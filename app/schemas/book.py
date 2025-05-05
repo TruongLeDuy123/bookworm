@@ -44,7 +44,6 @@ class BookSchema(BookBase):
     book_cover_photo: str
     author: AuthorSchema
     category: CategorySchema
-    # discount: DiscountSchema
     class Config:
         from_attributes = True
 

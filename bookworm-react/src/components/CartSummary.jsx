@@ -1,7 +1,10 @@
 import React from "react";
 import { Card, Button } from 'react-bootstrap';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { formatCurrency } from '../utils/formatCurrency';
 
 const CartSummary = ({ cartTotal, handlePlaceOrder }) => {
+    const { currency, exchangeRate } = useCurrency();
     return (
         <Card className="pb-5">
             <div className="bg-light border p-3 mb-3">
@@ -13,7 +16,7 @@ const CartSummary = ({ cartTotal, handlePlaceOrder }) => {
             <div className="mb-3 px-5 w-100">
                 <div className="p-3 mb-3">
                     <h2 className="mb-0 text-center fw-bold">
-                        ${cartTotal ? cartTotal.toFixed(2) : 0}
+                        {formatCurrency(cartTotal ? cartTotal : 0, currency, exchangeRate)}
                     </h2>
                 </div>
             </div>

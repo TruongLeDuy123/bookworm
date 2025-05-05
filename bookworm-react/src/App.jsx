@@ -11,23 +11,25 @@ import BookDetailPage from "./pages/BookDetailPage";
 import CartPage from "./pages/CartPage";
 import Header from "./components/Header";
 import AboutPage from "./pages/AboutPage";
+import { CurrencyProvider } from './contexts/CurrencyContext';
 
 const App = () => {
     return (
-        <div className="d-flex flex-column min-vh-100">
-            <Header />
-            <main className="flex-grow-1">
-                <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    {/* <Route path="/login" element={<LoginForm />} /> */}
-                    <Route path="/book/:id" element={<BookDetailPage />} />
-                    <Route path="/cart" element={<CartPage />} />
-                </Routes>
-            </main>
-            <Footer />
-        </div>
+        <CurrencyProvider>
+            <div className="d-flex flex-column min-vh-100">
+                <Header />
+                <main className="flex-grow-1">
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/shop" element={<ShopPage />} />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/book/:id" element={<BookDetailPage />} />
+                        <Route path="/cart" element={<CartPage />} />
+                    </Routes>
+                </main>
+                <Footer />
+            </div>
+        </CurrencyProvider>
     )
 }
 

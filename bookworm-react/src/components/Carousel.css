@@ -10,21 +10,18 @@
   z-index: 2;
 }
 
-/* Mũi tên trái */
 .prev-arrow {
   border-width: 25px 35px 25px 0;
   border-color: transparent #ccc transparent transparent;
   left: -20px;
 }
 
-/* Mũi tên phải */
 .next-arrow {
   border-width: 25px 0 25px 35px;
   border-color: transparent transparent transparent #ccc;
   right: -20px;
 }
 
-/* Hover effect */
 .prev-arrow:hover {
   border-right-color: #888;
 }
@@ -33,7 +30,6 @@
   border-left-color: #888;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 1200px) {
   .prev-arrow {
     border-width: 20px 28px 20px 0;
