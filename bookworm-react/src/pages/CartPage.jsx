@@ -26,6 +26,33 @@ const ShoppingCart = () => {
         });
         const data = await res.json();
 
+        if (data.changed_prices && data.changed_prices.length > 0) {
+            let msg = 'Một số sách đã thay đổi giá:\n';
+            data.changed_prices.forEach(item => {
+                msg += `- Sách ID ${item.book_id}: ${item.old_price} → ${item.new_price}\n`;
+            });
+            Swal.fire({
+                icon: 'info',
+                title: 'Giá sách đã thay đổi!',
+                text: msg,
+                confirmButtonText: 'OK',
+                timer: 10000,
+                timerProgressBar: true,
+            });
+
+            const updatedCart = cart.map(item => {
+                const changed = data.changed_prices.find(b => b.book_id === item.book_id);
+                if (changed) {
+                    return { ...item, price: changed.new_price, has_discount: changed.has_discount };
+                }
+                return item;
+            });
+            setOrderItems(updatedCart);
+            localStorage.setItem("cart", JSON.stringify(updatedCart));
+            window.dispatchEvent(new Event("cartUpdated"));
+            return;
+        }
+
         if (data.success) {
             Swal.fire({
                 icon: 'success',

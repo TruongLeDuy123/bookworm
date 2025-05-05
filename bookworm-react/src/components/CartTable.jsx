@@ -23,7 +23,7 @@ const CartTable = ({ orderItems, increaseQty, decreaseQty }) => {
                                     >
                                         <div className="d-flex align-items-center">
                                             <img
-                                                src={orderItem.book_cover_photo ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg": "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
+                                                src={orderItem.book_cover_photo ? "https://nhasachphuongnam.com/images/thumbnails/270/290/detailed/174/Diary_of_a_Wimpy_Kid.jpg" : "https://res.cloudinary.com/dfwr3z0ls/image/upload/v1733227995/bouhsa0hcabyl1gq7h0i.png"}
                                                 alt="Book"
                                                 className="me-3 img-fluid"
                                                 style={{ maxWidth: '80px', maxHeight: '100px' }}
