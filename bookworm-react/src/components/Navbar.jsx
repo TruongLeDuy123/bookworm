@@ -12,8 +12,6 @@ const Header = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const dropdownRef = useRef(null);
 
-    const user_id = localStorage.getItem("user_id");
-
     useEffect(() => {
         const fullName = localStorage.getItem("full_name");
         if (fullName) setUser(fullName);
