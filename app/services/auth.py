@@ -40,14 +40,16 @@ def set_refresh_token_cookie(response: Response, refresh_token: str):
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         expires=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         samesite="lax",
-        secure=False  # Để True nếu dùng HTTPS
+        secure=False,  # Để True nếu dùng HTTPS
+        path="/"      # Đảm bảo path đúng để xóa được cookie
     )
 
 def clear_refresh_token_cookie(response: Response):
     response.delete_cookie(
         key="refresh_token",
         samesite="lax",
-        secure=False  # Để True nếu dùng HTTPS
+        secure=False,  # Để True nếu dùng HTTPS
+        path="/"      # Đảm bảo path đúng để xóa được cookie
     )
 
 def verify_password(plain_password, hashed_password):
